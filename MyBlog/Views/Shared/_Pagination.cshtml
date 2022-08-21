@@ -1,0 +1,28 @@
+﻿@using MyBlog.Models.ViewModels
+@model Pagination
+
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        @{
+            var preClass =Model.currentPage == 1 ? "disabled" : "";
+            var nextClass = Model.currentPage == Model.maxPage ? "disabled": "";
+        }
+        <li class="page-item @preClass">
+            <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        @{
+            for(int p = 1; p <= Model.maxPage; p++)
+            {
+                    <li class="page-item"><a class="page-link" asp-controller="@Model.controller" asp-action="@Model.action" asp-route-page="@p" >@p</a></li>
+            }
+        }
+        <li class="page-item @nextClass">
+            <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>

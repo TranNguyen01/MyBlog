@@ -1,0 +1,82 @@
+﻿@using MyBlog.Models.ViewModels;
+@model ViewRegister;
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+    Layout = "_Layout";
+}
+
+<div class="mt-5 row align-items-center justify-content-center">
+    <div class="col-12 d-flex flex-column p-4 p-lg-5 align-items-center justify-content-center bg-white rounded-lg border-light shadow-sm" style="max-width: 600px">
+        <div class="text-center mb-3">
+            <h1 class="font-weight-bold h3">Đăng ký tài khoản</h1>
+        </div>
+        <form class="w-100" asp-controller="Account" asp-action="Register" method="post" >
+            <div class="form-row mb-2">
+                <div class="form-group col-12 col-md-6 pr-md-3">
+                    <label asp-for="LastName" class="control-label text-custom-primary"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Họ">
+                </div>
+                <div class="form-group col-12 col-md-6 pl-md-3">
+                    <label asp-for="FirstName" class="control-label text-custom-primary"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Tên">
+                </div>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>    
+
+            <div class="form-row mb-2">
+                <div class="form-group col-12 col-md-6 pr-md-3">
+                    <label asp-for="BirthDate" class="control-label text-custom-primary"></label>
+                    <input asp-for="BirthDate" class="form-control" placeholder="Ngày sinh">
+                </div>
+                <div class="form-group col-12 col-md-6 pl-md-3">
+                    <label asp-for="Gender" class="control-label text-custom-primary"></label>
+                    <select asp-for="Gender" class="custom-select">
+                        <option value="true">Nam</option>
+                        <option value="false">Nữ</option>
+                    </select>
+                </div>
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+            <div class="form-row mb-2">
+                <div class="form-group col-12 col-md-6 pr-md-3">
+                    <label asp-for="PhoneNumber" class="control-label text-custom-primary"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Số điện thoại">
+                </div>
+                <div class="form-group col-12 col-md-6 pl-md-3">
+                    <label asp-for="Email" class="control-label text-custom-primary"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Địa chỉ Email">
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+             <div class="form-row mb-2">
+                <div class="form-group col-12 col-md-6 pr-md-3">
+                    <label asp-for="Password" class="control-label text-custom-primary"></label>
+                    <input asp-for="Password" class="form-control" placeholder="Số điện thoại">
+                </div>
+                <div class="form-group col-12 col-md-6 pl-md-3">
+                    <label asp-for="ConfirmPassword" class="control-label text-custom-primary"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Địa chỉ Email">
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+              <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-5">
+                  <button type="submit" class="btn btn-block signin-btn  control-label">Đăng ký</button>
+            </div>
+             <div class="text-center">
+                 Bạn đã có tài khoản?
+                  <a asp-controller="Account" asp-action="Login"> Đăng nhập tại đây</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+

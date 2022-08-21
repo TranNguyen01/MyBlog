@@ -1,0 +1,19 @@
+﻿@using MyBlog.Models.ViewModels
+@model TextEditor
+
+
+@if (Model.ImportScript)
+{
+    <script src="~/lib//summernote/summernote-bs5.min.js"></script>
+    <link rel="stylesheet" href="~/lib/summernote/summernote-bs5.min.css" />
+}
+    
+<script>
+    $('#@Model.ID').summernote({
+    placeholder: "@Model.Placeholder",
+    tabsize: @Model.TabSize,
+    height: @Model.Height,
+    toolbar: @Html.Raw(Model.Toolbar)
+    });
+</script>
+

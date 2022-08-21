@@ -1,0 +1,63 @@
+﻿@using MyBlog.Models.ViewModels
+@model MyBlog.Models.Category
+
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["CurrentPage"] = "CategoriesManage";
+}
+
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <h2 class="h5 text-custom-primary font-weight-bold ">Chỉnh sửa thể loại</h2>
+    <div>
+        <a asp-action="Index">
+            <i class="fa-solid fa-arrow-left"></i>
+            Quản lí
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slug" class="control-label"></label>
+                <input asp-for="Slug" class="form-control" />
+                <span asp-validation-for="Slug" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ParentCategoryId" class="control-label"></label>
+                <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.AllCategories"></select>
+                <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea id="category_description"  asp-for="Description" class="form-control"></textarea> 
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Lưu thay đổi" class="btn btn-custom-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@{
+    var textEditor = new TextEditor("category_description", "Mô tả thể loại", height: 200);
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+   
+    @await Html.PartialAsync("_TextEditor", textEditor)
+
+}

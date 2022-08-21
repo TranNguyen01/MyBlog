@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MyBlog</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.css" integrity="sha512-9nqhm3FWfB00id4NJpxK/wV1g9P2QfSsEPhSSpT+6qrESP6mpYbTfpC+Jvwe2XY27K5mLwwrqYuzqMGK5yC9/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro-v6@18657a9/css/all.min.css" rel="stylesheet" type="text/css" />
+    
+</head>
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@inject AppDbContext Context
+
+<body >
+    <header>
+        <nav class="navbar navbar-expand-xl navbar-dark py-3 top-nav">
+            <div class="container">
+                <a class="navbar-brand mg-lg-5 d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-blog fa-2x mr-2"></i>
+                    MyBlog
+                </a>
+                <div class="d-flex align-items-center">
+                    <form class="">
+                        <div class="top-nav-search-group rounded-pill position-relative">
+                            <input class="form-control rounded-pill" placeholder="Tìm kiếm" id="top-nav-search-input"/>
+                            <button class="icon-btn top-nav-search-btn text-light" type="submit" title="Search" id="top-nav-search-btn">
+                                <i class="far fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+            
+        </nav>
+    </header>
+    <div class="container">
+        <div class="container mt-5 rounded">
+            <div class="row">
+                <div class="col-12 col-md-4 mb-4 mb-md-0">
+                    <div class="card p-2 border-light">
+                        <div class="card-header text-center border-0  bg-white rounded">
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                var Avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
+                                var fullName = $"{user.LastName} {user.FirstName}";
+                                <img class="avatar-xl rounded-circle mb-3 " src="@Avatar?.Url" />
+                                <h2 class="h5 control-label mb-3"> Chào, @fullName</h2>
+                                <form asp-action="Logout" asp-controller="Account" method="post">
+                                    <button type="submit"  class="btn btn-sm btn-custom-primary">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                        Đăng xuất
+                                    </button>
+                                </form>
+
+                            }
+                    
+                        </div>
+                        <div class="card-body p-2 mt-4">
+                            <div class="list-group border-0">
+                                @{
+                                    var navItems =new[]
+                                    {
+                                        new
+                                        {
+                                            Action = "Create",
+                                            Controller = "Post",
+                                            Name = "Đăng bài",
+                                            CurrentPage = "CreatePost"
+                                        },
+                                        new
+                                        {
+                                            Action = "MyItems",
+                                            Controller = "Account",
+                                            Name = "Bài viết của tôi",
+                                             CurrentPage = "MyItems"
+                                        },
+                                        new
+                                        {
+                                            Action = "Setting",
+                                            Controller = "Account",
+                                            Name = "Thông tin tài khoản",
+                                            CurrentPage = "AccountSetting"
+                                        },
+                                        new
+                                        {
+                                            Action = "Manage",
+                                            Controller = "Categories",
+                                            Name = "Quản lí thể loại",
+                                            CurrentPage = "CategoriesManage"
+                                        },
+                                    };
+                                }
+                                @foreach(var item in navItems)
+                                {
+                                    var active = item.CurrentPage == (string)ViewData["CurrentPage"] ? "active" : "";
+                                    <a asp-action="@item.Action" asp-controller="@item.Controller" class="list-group-item list-group-item-action border-0 text-custom-primary rounded-lg py-2 @active">
+                                    @item.Name
+                                    <i class="fa-solid fa-angle-right float-right"></i>
+                                </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-lg-none"></div>
+                <div class="col-12 col-md-8 ">
+                    <main role="main" >
+                        @RenderBody()
+                    </main>
+                </div>
+            </div>
+        </div>     
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - MyBlog - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

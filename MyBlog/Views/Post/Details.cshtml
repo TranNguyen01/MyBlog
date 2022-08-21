@@ -1,0 +1,93 @@
+﻿@model Post
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <nav aria-label="breadcrumb ">
+              <ol class="breadcrumb bg-white mb-0 px-0">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item">
+                    <a asp-action="@Model.Category?.Slug" asp-controller="the-loai">@Model.Category?.Name</a>
+                </li>
+              </ol>
+            </nav>
+        </div>
+    </div> 
+</div>
+
+<article class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8 text-left">
+            <h1 class="font-weight-bold">@Model.Title</h1>
+            <div class="text-left mt-3 mb-4">
+                 @{var authorFullName = $"{Model.Author.LastName} {Model.Author.FirstName}";}
+                <span class="font-weight-bold mr-2">@authorFullName</span>
+                <time class="text-muted" datetime="@Model.CreatedAt.ToString("yyyy-MM-dd")">@CreateDateString(Model.CreatedAt)</time>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8 border-bottom mb-3">
+            <div>
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="text-left mb-3 h4">
+               Ý kiến ( @Model.Comments.Count)
+            </div>
+            <div class="mb-5">
+                <form id="new_comment_form" asp-action="Create" asp-controller="Comment" method="post">
+                    <input value="@Model.Id" name="PostId" hidden/>
+                    <textarea placeholder="Ý kiến của bản" name="Content" class="rounded form-control" rows="4" required></textarea>
+                    <button class="btn btn-custom-primary mt-2 px-4 float-right" id="submit_comment_btn">Gửi</button>
+                </form>
+            </div>
+            <div class="pt-4">
+                @{
+                    var user = await UserManager.GetUserAsync(User);
+                }
+               @foreach (var comment in Model.Comments)
+               {
+                   <div class="media mb-3">
+                        <img src="@comment.User.Avatar.Url" class="mr-3 rounded-circle avatar-md" alt="@comment.User.FirstName">
+                        <div class="media-body">
+                            <div class="d-flex flex-row justify-content-between">
+                                <h5 class="mt-0">@comment.User.LastName @comment.User.FirstName</h5>  
+                                @if(user!=null && user.Id == comment.User.Id)
+                                {
+                                    <div>
+                                        <form asp-action="Delete" asp-controller="Comment" class="delete-form">
+                                            <input name="Id" value="@comment.Id" hidden/>
+                                            <button class="icon-btn text-danger" type="submit">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }   
+                            </div>
+                            <p>@comment.Content</p>
+                        </div>
+                    </div>
+               }
+            </div>
+        </div>
+    </div>
+</article>
+
+@{
+    string CreateDateString(DateTime dateTime)
+    {
+        var days = new string[] {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
+        return $"{days[(int)dateTime.DayOfWeek]}, {dateTime.ToString("dd/MM/yyyy")}";
+    }
+    
+}
+
+@section Scripts {
+ <script src="~/js/detail.js"></script>
+}

@@ -1,0 +1,141 @@
+﻿@using Microsoft.EntityFrameworkCore
+@inject AppDbContext _Context
+@{
+    var categories = await _Context.Categories
+        .Include(c => c.ParentCategory)
+        .Include(c => c.ChildrenCategory)
+        .Where(c => c.ParentCategoryId == null)
+        .ToListAsync();
+    foreach (var category in categories)
+    {
+        await GetChildrenCategory(category);
+    }
+
+    async Task GetChildrenCategory(Category ParentCategoies)
+    {
+        if (ParentCategoies.ChildrenCategory != null && ParentCategoies.ChildrenCategory.Count() > 0)
+        {
+            ICollection<Category> newChildrenCategory = new List<Category>();
+            foreach (var category in ParentCategoies.ChildrenCategory)
+            {
+                var newChildCategory = await _Context.Categories
+                    .Include(c => c.ParentCategory)
+                    .Include(c => c.ChildrenCategory)
+                    .FirstOrDefaultAsync(c => c.Id == category.Id);
+
+                await GetChildrenCategory(newChildCategory);
+                newChildrenCategory.Add(newChildCategory);
+            }
+            ParentCategoies.ChildrenCategory = newChildrenCategory;
+        }
+    }
+}
+
+<header>
+    <nav class="navbar navbar-expand-xl navbar-dark top-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand mg-lg-5 d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-blog fa-2x mr-2"></i>
+                MyBlog
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-flex justify-content-center">
+                <ul class="list-inline mb-0 align-self-center">
+                    @foreach(var item in categories)
+                    {
+                        <li class="list-inline-item align-middle mr-3">
+                            <a asp-action="@item.Slug" asp-controller="the-loai" class="text-decoration-none nav-link-item" >@item.Name</a>
+                        </li>
+                    }
+                    <li class="list-inline-item align-middle mr-3">
+                        <button class="icon-btn p-0 text-light" id="open-category-popup">
+                            <i class="fas fa-ellipsis-h fa-2xl"></i>
+                        </button>
+                        <div class="fixed-top bg-info"></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center ">
+                <div class="position-relative top-nav-search-group">
+                    <form asp-action="Search" asp-controller="Post" method="get">
+                        <input class="rounded-pill position-absolute" placeholder="Tìm kiếm" id="top-nav-search-input" name="query"/>
+                        <button class="text-light icon-btn" type="submit" title="Search"  id="top-nav-search-btn">
+                            <span class="ti-search position-relative"></span>
+                        </button>
+                    </form>
+                </div>
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+        <div class="category-popup" id="category-popup">
+            <div class="container p-3">
+                <ul class="row list-unstyled">
+                    @{
+                        await ShowCategories(categories, 0);
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+@{
+    async Task ShowCategories(ICollection<Category> categories, int level)
+    {
+        foreach(var category in categories)
+        {
+            if(level == 0)
+            {
+                <li class="col-12 col-md-6 col-lg-3 mb-3 cate-root-item">
+                    <a asp-action="@category.Slug" asp-controller="the-loai" class="text-decoration-none text-light ">
+                        @category.Name
+                    </a>
+                    @{
+                        var padding = $"{level+1}rem";
+                    }
+                 
+                    @if(category.ChildrenCategory!=null && category.ChildrenCategory.Count > 0)
+                    {
+                        <div style='margin-left: @padding' class="mt-2">
+                            <ul class="list-unstyled">
+                            @{
+                                await ShowCategories(category.ChildrenCategory, level + 1);
+                            }  
+                            </ul>
+                        </div>
+                    }
+                               
+                </li>
+            }
+            else
+            {
+                string prefix = string.Concat(Enumerable.Repeat("&nbsp;&nbsp;&nbsp;&nbsp;", level));
+                <li class="cate-child-item">
+                    <a asp-action="@category.Slug" asp-controller="the-loai" class="text-decoration-none text-light ">
+                        @category.Name
+                    </a>
+                        @{
+                        var padding = $"{level+1}rem";
+                    }
+                 
+                    @if(category.ChildrenCategory!=null && category.ChildrenCategory.Count > 0)
+                    {
+                        <div style='padding-left: @padding'>
+                            <ul class="list-unstyled">
+                            @{
+                                await ShowCategories(category.ChildrenCategory, level + 1);
+                            } 
+                            </ul>
+                        </div>
+                    }
+                </li>
+            }
+            
+            
+        }
+
+    }
+}

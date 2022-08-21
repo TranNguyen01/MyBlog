@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using MyBlog.Models.ViewModels
+@model ViewLogin;
+@inject SignInManager<User> SignInManager
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+<div class="mt-5 row align-items-center justify-content-center">
+    <div class="col-12 d-flex flex-column p-4 p-lg-5 align-items-center justify-content-center bg-white rounded-lg border-light shadow-sm" style="max-width: 500px">
+        <div class="text-center mb-4">
+            <h1 class="font-weight-bold h3">Đăng nhập</h1>
+        </div>
+        <form class="w-100" asp-controller="Account" asp-action="Login" method="post" >
+            <div class="form-group mb-4">
+               <label asp-for="Email" class="control-label"></label>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" >
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+                  </div>
+                  <input asp-for="Email" class="form-control" placeholder="Email hoặc password" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-4">
+                <label asp-for="Password" class="control-label"></label>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" >
+                        <i class="fa-solid fa-key"></i>
+                    </span>
+                  </div>
+                  <input asp-for="Password" type="password" class="form-control" placeholder="Mật khẩu"/>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-4 d-flex align-items-center justify-content-between ">
+                <div>
+                    <input asp-for="RememberMe" class="control-label">
+                    <label asp-for="RememberMe" class="control-label"></label>
+                </div>
+                 <a>Quên mật khẩu?</a>
+            </div>
+            <div class="form-group mb-5">
+                  <button type="submit" class="btn btn-block signin-btn  control-label">Đăng nhập</button>
+            </div>
+             <div class="text-center">
+                 Bạn chưa có tài khoản?
+                  <a asp-controller="Account" asp-action="Register"> Đăng ký tại đây</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+

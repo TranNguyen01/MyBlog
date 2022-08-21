@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using MyBlog.Models
+
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@inject AppDbContext Context
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
+    var imgUrl = avatar != null ? avatar.Url : "";
+    <a id="manage" class="nav-link text-dark py-0" asp-controller="Account" asp-action="Setting">
+            <img class="avatar-md rounded-circle" src="@imgUrl">
+    </a>
+    @*<li class="nav-item">
+        <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout">
+            <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+        </form>
+    </li>*@
+}
+else
+{
+    <a class="nav-link p-0 text-light ml-3" id="login"  asp-controller="Account"  asp-action="Login" >
+      <i class="fa-light fa-user-vneck fa-2x"></i>
+    </a>
+}

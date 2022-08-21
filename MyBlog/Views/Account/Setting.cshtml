@@ -1,0 +1,124 @@
+﻿@using MyBlog.Models.ViewModels
+@model ViewSetting
+@{
+     ViewData["CurrentPage"] = "AccountSetting";
+}
+
+<div class= "card-body bg-white border border-light rounded">
+    <h2 class="h5 text-custom-primary font-weight-bold mb-4">Thông tin cá nhân</h2>
+    <form asp-action="Setting" asp-controller="Account">
+        <div class="form-row mb-3">
+            <div class="form-group col-12 col-md-6 pr-md-3">
+                <label asp-for="LastName" class="control-label text-custom-primary"></label>
+                <input asp-for="LastName" class="form-control">
+            </div>
+            <div class="form-group col-12 col-md-6 pl-md-3">
+                <label asp-for="FirstName" class="control-label text-custom-primary"></label>
+                <input asp-for="FirstName" class="form-control">
+            </div>
+            <span asp-validation-for="LastName" class="text-danger"></span>
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="form-row mb-3">
+            <div class="form-group col-12 col-md-6 pr-md-3">
+                <label asp-for="BirthDate" class="control-label text-custom-primary"></label>
+                <input asp-for="BirthDate" class="form-control">
+            </div>
+            <div class="form-group col-12 col-md-6 pl-md-3">
+                <label asp-for="Gender" class="control-label text-custom-primary"></label>
+                <select asp-for="Gender" class="custom-select">
+                    <option value="true">Nam</option>
+                    <option value="false">Nữ</option>
+                </select>
+            </div>
+            <span asp-validation-for="BirthDate" class="text-danger"></span>
+            <span asp-validation-for="Gender" class="text-danger"></span>
+        </div>
+
+        <div class="form-row mb-4">
+            <div class="form-group col-12 col-md-6 pr-md-3">
+                <label asp-for="Email" class="control-label text-custom-primary"></label>
+                <input asp-for="Email" class="form-control">
+            </div>
+            <div class="form-group col-12 col-md-6 pl-md-3">
+                <label asp-for="PhoneNumber" class="control-label text-custom-primary"></label>
+                <input asp-for="PhoneNumber" class="form-control">
+            </div>
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="">
+            <button class="btn btn-custom-primary" type="submit">
+                Lưu thay đổi
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class= "card-body bg-white border border-light mt-4 rounded">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h5 text-custom-primary font-weight-bold align-middle ">Ảnh đại diện</h2>
+            <label for="save_avatar_submit " id="save_avatar_submit_btn"  class="btn btn-custom-primary d-none">Lưu thay đổi</label>
+    </div>
+               
+    <div class="row align-items-center py-3">
+        <div class="col-7 d-flex flex-row">
+            <img id="preview_avatar" src="Avatar?.Url" alt="avatar" class="avatar-lg bg-info rounded-circle">
+            <div class="px-3 d-flex flex-column justify-content-center">
+                    <div class="mb-0 control-label">Ảnh đại diện của bạn</div>
+                    <small>JPG, GIF or PNG</small>
+            </div>
+        </div>
+                     
+        <div class="col-5">
+            <form asp-action="ChangeAvatar" asp-controller="Account" method="post" enctype="multipart/form-data" id="save_avatar_form"> 
+                <label for="avatar" class="control-label">Thay đổi ảnh đại diện</label>
+                <input 
+                    type="file" 
+                    class="form-control-file" 
+                    id="avatar_input" 
+                    name="avatar" 
+                    title="avatars" 
+                    accept="image/*"
+                    required 
+                    />
+            </form>
+        </div>
+    </div>
+                    
+</div>
+
+<div class= "card-body bg-white border border-light rounded  mt-4 ">
+    <h2 class="h5 text-custom-primary font-weight-bold mb-4">Thay đổi mật khẩu</h2>
+    <form asp-action="ChangePassword" asp-controller="Account">
+        <div class="form-group mb-3">
+            <label asp-for="CurentPassword" class="control-label"></label>
+            <input asp-for="CurentPassword" class="form-control" placeholder="Mật khẩu hiện tại!">
+            <span asp-validation-for="CurentPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="NewPassword" class="control-label"></label>
+            <input asp-for="NewPassword" class="form-control" placeholder="Mật khẩu hiện tại!">
+            <span asp-validation-for="NewPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-4">
+            <label asp-for="ConfirmPassword" class="control-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control" placeholder="Mật khẩu hiện tại!">
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="">
+            <button class="btn btn-custom-primary" type="submit">
+                Lưu thay đổi
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js//setting.js"></script>
+}
+

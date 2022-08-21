@@ -1,0 +1,83 @@
+﻿@using MyBlog.Models.ViewModels
+@model ViewPost
+
+@{
+    ViewData["CurrentPage"] = "MyItems";
+    var thumbnail = (Photo)ViewData["Thumbnail"];
+    
+}
+
+
+<div class= "card-body border border-light">     
+     <div asp-validation-summary="ModelOnly">
+        <span>Please correct the following errors</span>
+    </div>
+    <div>
+         <div class="thumbnail_container" id="drop-area">
+            <label class="drop_label" id="drop-label">
+                <span>Kéo thả</span>
+                <span>HOẶC</span>
+                <label class="btn btn-outline-danger mb-0" for="thumbnail" >Chọn ảnh bìa...</label>
+            </label>
+            <input type="file" accept="image/*" name="thumbnail " id="thumbnail" class="thumnail_input"/>
+                @{
+                 var className = (thumbnail != null && thumbnail.Url != "")?"":"d-none";
+                }
+               <img class="img-thumbnail img_thumbnail @className" title="thumbnail image" id="thumbnail_image" name="thumbnail_image" src="@thumbnail?.Url"/>
+            
+            <div class="progress progress_container" >
+                <div class="progress-bar bg-info" role="progressbar" style="width: 1%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" id="progressbar"></div>
+            </div>
+        </div>
+        <form asp-controller="Post" asp-action="Edit" >
+             <div class="form-group">
+                  <input asp-for="Thumbnail" class="form-control" id="thumbnail_info" hidden/>
+                  <span asp-validation-for="Thumbnail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                  <label asp-for="Title" class="control-label"></label>
+                  <input asp-for="Title" class="form-control" />
+                  <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.AllCategories"></select>
+            </div>
+
+            <div class="form-group">
+                  <label asp-for="Description" class="control-label"></label>
+                  <textarea asp-for="Description" class="form-control" id="desciption_editor"></textarea>
+                  <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                  <label asp-for="Content" class="control-label" ></label>
+                  <textarea id="content_editor" asp-for="Content" class="form-control" rows="20"></textarea>
+                  <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+                   
+             <div class="form-group d-flex justify-content-center position-relative">
+                 <a asp-action="MyItems" asp-controller="Account" style="position:absolute; top:50%; left:0; transform:translateY(-50%);">
+                     <i class="bi bi-arrow-left"></i>
+                     Trở lại
+                 </a>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@{
+    //var decriptionEditor = new TextEditor("desciption_editor", "Tóm tắt nội dung", height: 100);
+    var contentEditor = new TextEditor("content_editor", "Nội dung bài viết", height: 500);
+}
+
+@section Scripts {
+     @*@await Html.PartialAsync("_TextEditor", decriptionEditor)*@
+     @await Html.PartialAsync("_TextEditor", contentEditor)
+    <script src="~/js/post.js"></script>
+    <link rel="stylesheet" href="~/css/post.css" />
+}
