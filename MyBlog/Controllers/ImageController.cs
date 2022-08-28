@@ -1,4 +1,5 @@
 ﻿using CloudinaryDotNet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/image/signature")]
+        [Authorize(Roles = "User, Manage, Admin")]
         public IActionResult GetCloudinarySignInfo()
         {
             var now = (DateTimeOffset)DateTime.Now;

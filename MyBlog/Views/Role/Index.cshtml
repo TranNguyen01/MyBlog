@@ -1,0 +1,42 @@
+﻿@using MyBlog.Models.ViewModels
+@model List<ViewRole> 
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="align-middle">Vai trò</th>
+            <th class="align-middle">Chức năng</th>
+            <th class="align-middle text-right">
+                <button class="btn btn-custom-primary" data-target="#create_role_modal" data-toggle="modal">
+                    <i class="fa-solid fa-plus"></i>
+                    Thêm
+                </button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var role in Model)
+        {
+            <tr>
+                <td>@role.Name</td>
+                <td> 
+                    @foreach (var claim in @role.Claims)
+                    {
+                        <small>@claim</small><br>
+                    }
+                </td>
+                <td>
+                    <div>
+
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var createModel = new ViewCreateRole();
+   
+}
+ @await Html.PartialAsync("_CreateRoleModal", createModel)

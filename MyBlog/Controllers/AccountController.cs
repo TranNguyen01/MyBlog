@@ -28,10 +28,11 @@ namespace MyBlog.Controllers
         private readonly Cloudinary _Cloudinary;
         private readonly AppDbContext _Context;
         private readonly IEmailSender _EmailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public string message { get; set; }
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger, Cloudinary Cloudinary, AppDbContext Context, IEmailSender EmailSender)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AccountController> logger, Cloudinary Cloudinary, AppDbContext Context, IEmailSender EmailSender, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -39,6 +40,7 @@ namespace MyBlog.Controllers
             _Cloudinary = Cloudinary;
             _Context = Context;
             _EmailSender = EmailSender;
+            _roleManager = roleManager;
         }
 
         [HttpGet("/login/")]
@@ -76,6 +78,7 @@ namespace MyBlog.Controllers
 
         [HttpPost("/register/")]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(ViewRegister model)
         {
             if (ModelState.IsValid)
@@ -121,6 +124,8 @@ namespace MyBlog.Controllers
                            hãy <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>bấm vào đây</a> 
                            để kích hoạt tài khoản.");
 
+                    await _userManager.AddToRoleAsync(newUser, "User");
+
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return LocalRedirect(Url.Action(nameof(RegisterConfirmation)));
@@ -143,12 +148,14 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult RegisterConfirmation()
         {
             return View();
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null)
@@ -163,6 +170,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost("/logout")]
+        [Authorize(Roles = "User, Admin, Manage")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -170,6 +179,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/Setting")]
+        [Authorize(Roles = "User, Admin, Manage")]
         public async Task<IActionResult> Setting()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -191,6 +201,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost("/Setting/Avatar")]
+        [Authorize(Roles = "User, Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeAvatar(IFormFile avatar)
         {
 
@@ -235,6 +247,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost("/Setting")]
+        [Authorize(Roles = "User, Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Setting(ViewUserInfo model)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -270,6 +284,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/MyItems")]
+        [Authorize(Roles = "User, Manage, Admin")]
         public async Task<IActionResult> MyItems()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -280,6 +295,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User, Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ViewPassword model)
         {
             var user = await _userManager.GetUserAsync(User);

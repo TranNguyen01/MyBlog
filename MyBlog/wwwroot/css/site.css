@@ -226,6 +226,7 @@ body {
     border-bottom: 3px solid #04b2f7;
 }
 
+
 .category-popup {
     width: 100%;
     background-color: #141329;
@@ -282,4 +283,10 @@ body {
     color: #fff;
     background-color: #1c2540;
     border-color: #1c2540;
+}
+
+.alert-container {
+    position: absolute;
+    top:0;
+    right: 0
 }

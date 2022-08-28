@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/categories/manage/")]
+        [Authorize(Roles = "Manage, Admin")]
         public async Task<IActionResult> Manage(int page = 1, int pageSize = 15)
         {
             var categories = await _context.Categories
@@ -82,6 +84,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/Categories/Create")]
+        [Authorize(Roles = "Manage, Admin")]
         public async Task<IActionResult> Create()
         {
             var categoriesItem = _context.Categories
@@ -102,7 +105,8 @@ namespace MyBlog.Controllers
 
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Slug,Description,ParentCategoryId")] Category category)
         {
             if (ModelState.IsValid)
@@ -159,6 +163,8 @@ namespace MyBlog.Controllers
                 return !(await _context.Categories.AnyAsync(c => c.Slug == category.Slug && c.Id != category.Id));
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Manage, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -204,7 +210,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category)
         {
             if (id != category.Id)
@@ -285,7 +292,8 @@ namespace MyBlog.Controllers
 
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manage, Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _context.Categories

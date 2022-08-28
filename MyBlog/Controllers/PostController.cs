@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -45,6 +46,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/post/manage")]
+        [Authorize(Roles = "User, Manage, Admin")]
         public async Task<IActionResult> Manage(int page = 1, int pageSize = 15)
         {
             var post = await _Context.Posts
@@ -55,6 +57,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/post/create")]
+        [Authorize(Roles = "User, Manage, Admin")]
         public async Task<IActionResult> Create()
         {
             string Preset = $"sample_{_cloudinary.Api.SignParameters(new SortedDictionary<string, object> { { "api_key", _cloudinary.Api.Account.ApiKey } }).Substring(0, 10)}";
@@ -70,6 +73,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/post/search")]
+        [AllowAnonymous]
         public async Task<IActionResult> Search(string query)
         {
             if (query == null) return Redirect("~");
@@ -95,6 +99,8 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/post/{id}/edit")]
+        [Authorize(Roles = "User, Manage, Admin")]
+
         public async Task<IActionResult> Edit(int id)
         {
             var post = await _Context.Posts
@@ -121,6 +127,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost("post/{id}/edit")]
+        [Authorize(Roles = "User, Manage, Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Content,AuthorId,CategoryId,Thumbnail")] ViewPost post)
         {
@@ -206,6 +213,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User, Manage, Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,Description,Content,CategoryId,Thumbnail")] ViewPost post)
         {
@@ -290,6 +298,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User, Manage, Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
@@ -316,6 +325,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/post/{slug}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(string slug)
         {
             var post = await _Context.Posts

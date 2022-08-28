@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,8 @@ namespace MyBlog.Controllers
             _UserManager = userManager;
         }
 
-
+        [HttpPost]
+        [Authorize(Roles = "User, Manage, Admin")]
         public async Task<IActionResult> Create([Bind("PostId,Content")] ViewComment comment)
         {
             var user = await _UserManager.GetUserAsync(User);
@@ -68,6 +70,7 @@ namespace MyBlog.Controllers
             });
         }
 
+        [Authorize(Roles = "User, Manage, Admin")]
         [HttpDelete]
         public async Task<IActionResult> Delete(int Id)
         {
