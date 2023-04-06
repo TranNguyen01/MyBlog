@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyBlog.Models
 {
     public class Photo
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public string PublicId { get; set; }
         public int Version { get; set; }
@@ -20,7 +21,15 @@ namespace MyBlog.Models
         public string Url { get; set; }
         public string SecureUrl { get; set; }
         public string Path { get; set; }
+
+        public Guid? PostId { get; set; }
+
+        [NotMapped]
         public Post Post { get; set; }
-        public User User { get; set; }
+
+        public string UserId { get; set; }
+        
+        [NotMapped]
+        public User? User { get; set; }
     }
 }

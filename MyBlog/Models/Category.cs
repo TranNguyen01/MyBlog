@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Nest;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyBlog.Models
 {
     public class Category
     {
         [Key]
-        public int Id { get; set; }
+        public Guid? Id { get; set; }
 
         [Required(ErrorMessage = "Tên danh mục là trường bắt buộc!")]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Tên phải có độ dài nằm trong khoảng {1} đến {2} kí tự!")]
@@ -25,16 +28,26 @@ namespace MyBlog.Models
         public string Slug { get; set; }
 
         [Display(Name = "ID Danh mục cha")]
-        public int? ParentCategoryId { get; set; }
+        public Guid? ParentCategoryId { get; set; }
 
         //[ForeignKey("ParentCategoryId")]
         [Display(Name = "Danh mục cha")]
-        public Category ParentCategory { get; set; }
+        public virtual Category ParentCategory { get; set; }
 
+        public bool Deleted { get; set; }
+
+        [Ignore]
         [Display(Name = "Danh mục con")]
-        public ICollection<Category> ChildrenCategory { get; set; }
+        public virtual ICollection<Category> ChildrenCategory { get; set; }
 
+        [Ignore]
         [Display(Name = "Bài viết")]
-        public ICollection<Post> Posts { get; set; }
+        [NotMapped]
+        public virtual ICollection<Post> Posts { get; set; }
+
+        [Ignore]
+        [Display(Name = "Tài Liệu")]
+        [NotMapped]
+        public virtual ICollection<Document> Documents { get; set; }
     }
 }

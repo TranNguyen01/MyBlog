@@ -21,6 +21,10 @@
                                     <button class="icon-btn" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
                                     <div class="dropdown-menu dropdown-menu-right">
                                         <a class="dropdown-item" asp-action="Edit" asp-controller="Post" asp-route-id="@post.Id">Chỉnh sửa</a>
+                                        <form asp-action="Delete" asp-controller="Post">
+                                            <input hidden name="id" value="@post.Id">
+                                            <button class="dropdown-item" type="submit">Xoá</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -36,6 +40,6 @@
 </div>
 
 @section Scripts {
-    <script src="~/js//setting.js"></script>
+    <script src="~/js/setting.js"></script>
 }
 

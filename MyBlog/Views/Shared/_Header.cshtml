@@ -4,7 +4,7 @@
     var categories = await _Context.Categories
         .Include(c => c.ParentCategory)
         .Include(c => c.ChildrenCategory)
-        .Where(c => c.ParentCategoryId == null)
+        .Where(c => c.ParentCategoryId == null && c.Deleted == false)
         .ToListAsync();
     foreach (var category in categories)
     {
@@ -21,7 +21,7 @@
                 var newChildCategory = await _Context.Categories
                     .Include(c => c.ParentCategory)
                     .Include(c => c.ChildrenCategory)
-                    .FirstOrDefaultAsync(c => c.Id == category.Id);
+                    .FirstOrDefaultAsync(c => c.Id == category.Id && c.Deleted == false);
 
                 await GetChildrenCategory(newChildCategory);
                 newChildrenCategory.Add(newChildCategory);
@@ -29,14 +29,16 @@
             ParentCategoies.ChildrenCategory = newChildrenCategory;
         }
     }
+
+    var headerCategories = categories.Take(6).ToList();
 }
 
 <header>
     <nav class="navbar navbar-expand-xl navbar-dark top-nav fixed-top">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand mg-lg-5 d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                <i class="fa-solid fa-blog fa-2x mr-2"></i>
-                MyBlog
+                <i class="fa-solid fa-blog fa-xl mr-2"></i>
+                We Share
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +46,7 @@
             </button>
             <div class="navbar-collapse collapse d-flex justify-content-center">
                 <ul class="list-inline mb-0 align-self-center">
-                    @foreach(var item in categories)
+                    @foreach (var item in headerCategories)
                     {
                         <li class="list-inline-item align-middle mr-3">
                             <a asp-action="@item.Slug" asp-controller="the-loai" class="text-decoration-none nav-link-item" >@item.Name</a>

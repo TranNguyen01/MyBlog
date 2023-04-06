@@ -3,6 +3,10 @@
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10 col-xl-8">
@@ -18,7 +22,7 @@
     </div> 
 </div>
 
-<article class="container">
+<article class="container post-article" post-id="@Model.Id">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10 col-xl-8 text-left">
             <h1 class="font-weight-bold">@Model.Title</h1>
@@ -37,8 +41,45 @@
             </div>
         </div>
         <div class="col-12 col-lg-10 col-xl-8">
-            <div class="text-left mb-3 h4">
-               Ý kiến ( @Model.Comments.Count)
+            <div class="d-flex flex-row justify-content-between pb-3">
+                <div class="d-flex flex-row align-items-center justify-content-start mb-3">
+                    <div >
+                        <form asp-action="Like" asp-controller="Like" id="like-form">
+                            <input  hidden value="@Model.Id" name="PostId"/>
+                            @if(user != null)
+                            {
+                                 <input hidden value="@user.Id" name="UserId"/>
+                            }
+                            <button class="icon-btn like-btn h5 mb-0 p-0">
+                                <i class=" fa-light fa-hands-clapping" id="like-active"></i>
+                                <span class="h6 font-weight-light post-like-count" id="like-count">
+                                   
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="text-left h5 mb-0 ml-4">
+                       <i class="fa-light fa-comment"></i>
+                       <span class="h6 font-weight-light post-like-count" id="comment-count">
+                       </span>
+                    </div>
+                </div>
+                 
+                <div class="position-relative d-flex align-items-center" id="bookmark_container">
+                    <button class="icon-btn" title="Báo cáo" onclick="report('@(user?.Id)', '@(Model.Title)' , '@(Model.Id)')">
+                        <i class="fa-light fa-flag"></i>
+                    </button>
+
+                    <form asp-controller="Collections" id="collections-add-post-form" >
+                        <input name="postId" value="@Model.Id" hidden/>
+                    </form>
+                    <form asp-action="RemovePost" asp-controller="Collections" id="collections-remove-post-form">
+                        <input name="postId" value="@Model.Id" hidden/>
+                    </form>
+                    <button class="icon-btn bookmarked bookmark_btn" id="bookmark_btn" title="Lưu">
+                        <i class="fa-light fa-bookmark"></i>
+                    </button>
+                </div>
             </div>
             <div class="mb-5">
                 <form id="new_comment_form" asp-action="Create" asp-controller="Comment" method="post">
@@ -47,14 +88,12 @@
                     <button class="btn btn-custom-primary mt-2 px-4 float-right" id="submit_comment_btn">Gửi</button>
                 </form>
             </div>
-            <div class="pt-4">
-                @{
-                    var user = await UserManager.GetUserAsync(User);
-                }
-               @foreach (var comment in Model.Comments)
+            <div class="pt-4" id="comment-container">
+               
+              @* @foreach (var comment in Model.Comments)
                {
                    <div class="media mb-3">
-                        <img src="@comment.User.Avatar.Url" class="mr-3 rounded-circle avatar-md" alt="@comment.User.FirstName">
+                        <img src="@comment.User?.Avatar?.Url" class="mr-3 rounded-circle avatar-md" alt="@comment.User.FirstName">
                         <div class="media-body">
                             <div class="d-flex flex-row justify-content-between">
                                 <h5 class="mt-0">@comment.User.LastName @comment.User.FirstName</h5>  
@@ -74,7 +113,7 @@
                         </div>
                     </div>
                }
-            </div>
+            </div>*@
         </div>
     </div>
 </article>
@@ -89,5 +128,9 @@
 }
 
 @section Scripts {
- <script src="~/js/detail.js"></script>
+ <script src="~/js/detail.js" type="text/javascript" ></script>
+<script>
+    getComments('@user?.Id', '@Model.Id');
+    getLikes('@user?.Id', '@Model.Id');
+</script>
 }

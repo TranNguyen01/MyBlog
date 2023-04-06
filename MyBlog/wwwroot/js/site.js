@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
-    function showAlert(type,title, message) {
+
+    function showAlert(type, title, message) {
         let alert = `
             <div class="alert alert-${type} alert-dismissible fade show" role="alert">
                 <strong>${title}</strong> ${message}
@@ -9,7 +10,6 @@
            </div>`
         $("#alert-container").append(alert);
     }
-
 
     let topNavSearchBtn = $("#top-nav-search-btn")
     topNavSearchBtn.on("click", function () { 
@@ -50,7 +50,7 @@
     })
 
     $(".check-menu").on('click', "input[type=checkbox]", function (event) {
-        $(this).closest("label").toggleClass("active", this.checked);
+        $(this).closest("label").toggleClass("selected", this.checked);
         
         let menu = $(this).closest("div.check-menu");
         let checkedbox = menu.find("input:checked");
@@ -116,3 +116,15 @@
     })
     
 })
+
+function showAlert(type, title, message) {
+    console.log(message)
+    let alert = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <strong>${title}</strong> ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+           </div>`
+    $("#alert-container").append(alert);
+}

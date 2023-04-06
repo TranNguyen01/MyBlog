@@ -1,0 +1,278 @@
+﻿@using MyBlog.Models.ViewModels;
+@using MyBlog.Utilities;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@model PaginatedList<Post>
+
+@*<h1 class="text-black-50 text-center">Kiểm duyệt bài viết</h1>
+<form method="get" class="form-inline container-fluid d-flex flex-row justify-content-around my-3">
+    <div class="form-group">
+        <label class="my-1 mr-2 font-weight-bold" for="searchKey">Bài viết:</label>
+        <input type="text" class="form-control" placeholder="Tìm kiếm" name="searchKey" id="searchKey">
+    </div>
+    
+    <div class="form-group">
+        <label class="my-1 mr-2 font-weight-bold" for="fromDate">Từ ngày:</label>
+        <input type="date" class="form-control" placeholder="Từ ngày" name="fromDate" id="fromDate">
+    </div>
+    
+    <div class="form-group">
+        <label class="my-1 mr-2 font-weight-bold" for="toDate">Đến ngày:</label>
+        <input type="date" class="form-control" placeholder="Đến ngày" name="toDate" id="toDate">
+    </div>
+
+    <div class="form-group">
+        <label class="my-1 mr-2 font-weight-bold" for="categoryId">Thể loại:</label>
+        <select class="form-control" name="categoryId" id="categoryId">
+            <option value="" selected>Tất cả</option>
+            <option value="1">Đã phê duyệt</option>
+            <option value="0">Chờ phê duyệt</option>
+            <option value="-1">Đã từ chối</option>
+        </select>
+    </div>
+    
+    <div class="form-group font-weight-bold">
+        <label class="my-1 mr-2" for="status">Trạng thái:</label>
+        <select class="form-control" name="status" id="status">
+            <option value="" selected>Tất cả</option>
+            <option value="1">Đã phê duyệt</option>
+            <option value="0">Chờ phê duyệt</option>
+            <option value="-1">Đã từ chối</option>
+        </select>
+    </div>
+    
+    <button type="submit" class="icon-btn"><i class="fa-regular fa-magnifying-glass"></i></button>
+</form>
+<div class="container-fluid">
+    <table class="table table-bordered table-hover text-black-50">
+        <thead class="thead-dark">
+            <tr>
+                <th>Bài viết</th>
+                <th>Tác giả</th>
+                <th>Ngày đăng tải</th>
+                <th>Chỉnh sửa lần cuối</th>
+                <th>Thể loại</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+                   
+        <tbody>
+            @{
+                foreach (var post in Model.Items)
+                {
+
+                    <tr key="@post.Id">
+                        <td class="align-middle">
+                            <strong>
+                                <a asp-action="Details" asp-controller="Post" asp-route-id="@post.Slug">@post.Title</a>
+                            </strong>
+                        </td>
+                        @{
+                            var authorFullName = $"{post.Author?.LastName} {post.Author?.FirstName}";
+                        }
+                        <td class="align-middle"> @authorFullName</td>
+                        <td class="align-middle">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td class="align-middle">@post.LastUpdatedAt.ToString("dd/MM/yyyy")</td>
+                        <td class="align-middle">@post.Category?.Name</td>
+                        <td class="align-middle">
+                            @switch (post.Status)
+                            {
+                                case 1:
+                                    <p class="text-success mb-0">Phê duyệt</p>
+                                    break;
+                                case 0:
+                                    <p class="text-primary mb-0">Chờ phê duyệt</p>
+                                    break;
+                                case -1:
+                                    <p class="text-danger mb-0">Từ chối</p>
+                                    break;
+                                default:
+                                    <p class="text-primary mb-0">Chờ phê duyệt 2</p>
+                                    break;
+                            }
+                        
+                        </td>
+
+                        <td class="align-middle">
+                            <div class="d-flex flex-row justify-content-center flex-nowrap alig-items-center border-top-0">
+                                <button class="icon-btn text-primary p-0" title="detail"
+                                    onclick="viewPostDetail(event, '@post.Id')"
+                                    data-toggle="modal"
+                                    data-target="#post_detail_modal"
+                                 >
+                                    <i class="fa-regular fa-magnifying-glass"></i>
+                                </button>
+                                <button class="icon-btn text-success p-0 mx-3" 
+                                    title="accept" 
+                                    onclick="viewAcceptPost(event, '@post.Id')"
+                                >
+                                    <i class="fa-regular fa-circle-check"></i>
+                                </button>
+                                <button class="icon-btn text-danger p-0" 
+                                    title="decline"
+                                    onclick="viewDeclinePost(event, '@post.Id')">
+                                    <i class="fa-regular fa-circle-exclamation"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    @await Html.PartialAsync("_Pagination",
+    new Pagination() {
+    currentPage = Model.CurrentPage,
+    maxPage = Model.MaxPage,
+    action = "", controller = "CensorShip"
+    })
+</div>*@
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Kiểm duyệt bài viết</h6>
+@*        <form method="get" class="form-inline d-flex flex-row justify-content-around">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Tìm kiếm bài biết..." name="searchKey" id="searchKey">
+            </div>
+    
+            <div class="form-group">
+                <input type="date" class="form-control" placeholder="Từ ngày" name="fromDate" id="fromDate">
+            </div>
+    
+            <div class="form-group">
+                <input type="date" class="form-control" placeholder="Đến ngày" name="toDate" id="toDate">
+            </div>
+    
+            <div class="form-group">
+                <select class="form-control" name="status" id="status">
+                    <option value="" selected>Tất cả trạng thái</option>
+                    <option value="1">Đã phê duyệt</option>
+                    <option value="0">Chờ phê duyệt</option>
+                    <option value="-1">Đã từ chối</option>
+                </select>
+            </div>
+    
+            <button type="submit" class="icon-btn"><i class="fa-regular fa-magnifying-glass"></i></button>
+        </form>*@
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Bài viết</th>
+                        <th>Tác giả</th>
+                        <th>Ngày đăng tải</th>
+                        <th>Chỉnh sửa lần cuối</th>
+                        <th>Thể loại</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var post in Model.Items)
+                        {
+
+                            <tr key="@post.Id">
+                                <td class="align-middle">
+                                    <strong>
+                                        <a asp-action="@post.Slug" asp-controller="Post">@post.Title</a>
+                                    </strong>
+                                </td>
+                                @{
+                                    var authorFullName = $"{post.Author?.LastName} {post.Author?.FirstName}";
+                                }
+                                <td class="align-middle"> @authorFullName</td>
+                                <td class="align-middle">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="align-middle">@post.LastUpdatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="align-middle">@post.Category?.Name</td>
+                                <td class="align-middle">
+                                    @switch (post.Status)
+                                    {
+                                        case 1:
+                                            <p class="text-success mb-0">Phê duyệt</p>
+                                            break;
+                                        case 0:
+                                            <p class="text-primary mb-0">Chờ phê duyệt</p>
+                                            break;
+                                        case -1:
+                                            <p class="text-danger mb-0">Từ chối</p>
+                                            break;
+                                        default:
+                                            <p class="text-primary mb-0">Chờ phê duyệt 2</p>
+                                            break;
+                                    }
+
+                                </td>
+
+                                <td class="align-middle">
+                                    <div class="d-flex flex-row justify-content-center flex-nowrap alig-items-center border-top-0">
+                                        <button class="icon-btn text-primary p-0" title="detail"
+                                            onclick="viewPostDetail(event, '@post.Id')"
+                                            data-toggle="modal"
+                                            data-target="#post_detail_modal">
+                                            <i class="fa-regular fa-magnifying-glass"></i>
+                                        </button>
+                                        <button class="icon-btn text-success p-0 mx-3"
+                                            title="accept"
+                                            onclick="viewAcceptPost(event, '@post.Id')">
+                                            <i class="fa-regular fa-circle-check"></i>
+                                        </button>
+                                        <button class="icon-btn text-danger p-0"
+                                            title="decline"
+                                            onclick="viewDeclinePost(event, '@post.Id')">
+                                            <i class="fa-regular fa-circle-exclamation"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" id="post_detail_modal">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center text-info">Nội dung bài viết</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center min-vh-60">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Không</button>
+                <button type="button" id="confirm_delete_post" class="btn btn-primary">Có</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        DefaultContractResolver contractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        };
+        var str = JsonConvert.SerializeObject(Model.Items, Formatting.Indented,
+        new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = contractResolver,
+        });
+        <script type="text/javascript">
+            var posts = eval(@Html.Raw(str))
+        </script>
+    }
+    <script src="~/js/CensorShip.js" type="text/javascript"></script>
+}

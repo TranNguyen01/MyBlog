@@ -7,11 +7,13 @@ namespace MyBlog.Models
     public class Comment
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
+
+        public string Slug { get; set; }
 
         [Required]
         [Display(Name = "Bài viết")]
-        public int PostId { get; set; }
+        public Guid PostId { get; set; }
 
         [ForeignKey("PostId")]
         public Post Post { get; set; }
@@ -29,6 +31,7 @@ namespace MyBlog.Models
         [Required]
         [DataType(DataType.Time)]
         public DateTime CreatedAt { get; set; }
+        public bool Deleted { get; set; }
 
     }
 }

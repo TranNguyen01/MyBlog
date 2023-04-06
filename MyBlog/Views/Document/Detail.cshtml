@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using MyBlog.Models.ViewModels;
+@using MyBlog.Models;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@model ViewDocument
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12 col-xl-10">
+            <nav aria-label="breadcrumb ">
+                <ol class="breadcrumb bg-white mb-0 px-0">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item">
+                        <a asp-action="@Model.Category?.Slug" asp-controller="the-loai">@Model.Category?.Name</a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<article class="container-fluid post-article" post-id="@Model.Id">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12 col-xl-10 text-left">
+            <div class="d-flex flex-row justify-content-between">
+                <h1 class="font-weight-bold">@Model.Name</h1>
+                <a asp-action="download" asp-controller="document" asp-route-id="@Model.Id">Tải xuống</a>
+            </div>
+           
+            <div class="text-left mt-3 mb-4">
+                @{
+                    var authorFullName = $"{Model.Author.LastName} {Model.Author.FirstName}";
+                }
+                <span class="font-weight-bold mr-2">@authorFullName</span>
+                <time class="text-muted" datetime="@Model.CreatedAt.ToString("yyyy-MM-dd")">@CreateDateString(Model.CreatedAt)</time>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-12 col-xl-10 border-bottom mb-3">
+            <div>
+                <embed src="@Model.TempUrl" class="w-100" style="height: 1000px" />
+            </div>
+        </div>
+    </div>
+</article>
+
+@{
+    string CreateDateString(DateTime dateTime)
+    {
+        var days = new string[] { "Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy" };
+        return $"{days[(int)dateTime.DayOfWeek]}, {dateTime.ToString("dd/MM/yyyy")}";
+    }
+
+}
+
+@section Scripts {
+    <script src="~/js/detail.js" type="text/javascript"></script>
+}

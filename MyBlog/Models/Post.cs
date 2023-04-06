@@ -1,26 +1,29 @@
-﻿using System;
+﻿using Nest;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyBlog.Models
 {
     public class Post
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Display(Name = "Thể loại")]
-        public int? CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
+        [Ignore]
         [Display(Name = "Thể loại")]
-        public Category Category { get; set; }
-
+        public virtual Category Category { get; set; }
 
         [Display(Name = "Tác giả")]
         public string? AuthorId { get; set; }
 
         [Display(Name = "Tác giả")]
-        public User Author { get; set; }
+        [Ignore]
+        public virtual User Author { get; set; }
 
 
         [Required(ErrorMessage = "Tên bài viết là bắt buộc!")]
@@ -34,12 +37,13 @@ namespace MyBlog.Models
         public string Slug { get; set; }
 
         [Display(Name = "Ảnh bìa")]
-        public int ThumbnailId { get; set; }
+        public Guid ThumbnailId { get; set; }
 
         [Display(Name = "Ảnh bìa")]
-        public Photo Thumbnail { get; set; }
+        [Ignore]
+        public virtual Photo Thumbnail { get; set; }
 
-        [Required(ErrorMessage = "Tóm tắt là bắt buộc!")]
+        //[Required(ErrorMessage = "Tóm tắt là bắt buộc!")]
         [Display(Name = "Tóm tắt")]
         public string Description { get; set; }
 
@@ -53,14 +57,32 @@ namespace MyBlog.Models
         [DataType(DataType.Time)]
         public DateTime LastUpdatedAt { get; set; }
 
-
         [Display(Name = "Yêu thích")]
         public int LikesCount { get; set; }
 
-        [Display(Name = "Bình luận")]
-        public ICollection<Comment> Comments { get; set; }
+        public bool Deleted { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public int Status { get; set; }
 
+        [Ignore]
+        [Display(Name = "Bình luận")]
+        [NotMapped]
+        public virtual ICollection<Comment> Comments { get; set; }
+
+        [Ignore]
         [Display(Name = "Yêu thích")]
-        public ICollection<Like> Likes { get; set; }
+        [NotMapped]
+        public virtual ICollection<Like> Likes { get; set; }
+
+
+        public BaseESModel ExportES()
+        {
+            return new BaseESModel { 
+                Id =  new Guid(), 
+                Name = this.Title, 
+                Description = this.Description, 
+                Content = this.Content 
+            };
+        }
     }
 }

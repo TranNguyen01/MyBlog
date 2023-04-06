@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Controllers
 {
+    [Route("/role")]
     public class RoleController : Controller
     {
         private readonly UserManager<User> _UserManager;
@@ -44,7 +45,7 @@ namespace MyBlog.Controllers
             return View(roles);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(ViewCreateRole model)
         {

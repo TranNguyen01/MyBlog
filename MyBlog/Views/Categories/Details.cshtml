@@ -1,83 +1,158 @@
-﻿@model Category
+﻿@using MyBlog.Models.ViewModels;
+@using System.Text.RegularExpressions;
+@model Category
 @{
-    var post = (Post) ViewData["Featured"];
     Layout = "_Layout";
+    bool isPostsPage = Model.Posts != null;
+    bool isDocumentsPage = Model.Documents != null;
+    string displayName;
+    if (isPostsPage && isDocumentsPage) displayName = Model.Name;
+    else if (isPostsPage) displayName =  Model.Name;
+    else if (isDocumentsPage) displayName = Model.Name;
+    else displayName = Model.Name;
 }
 <link rel="stylesheet" href="~/css/home.css" />
-<div class="mb-4">
-    <h1 class="text-uppercase h1 text-center pb-2 mb-0" style="border-bottom: 2px solid #1c2540">@Model.Name</h1>
-    @if(Model.ChildrenCategory != null && Model.ChildrenCategory.Count != 0 )
-    {
-        <ul class="list-unstyled d-flex flex-row justify-content-center border-bottom py-2">
-            @foreach(var child in Model.ChildrenCategory)
-            {
-                <li class="text-uppercase mr-3">
-                    <a class="text-decoration-none" asp-action="@child.Slug" asp-controller="the-loai">
-                         @child.Name
-                    </a>
-                </li>
-            }
-        </ul>
-    }
-   
+
+
+
+<div class="row">
+    <div class="col-8 border-right">
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="mb-3 d-flex align-items-center "> 
+                    <div class="rounded-circle bg-light pl-1 pr-2 py-1 mr-2">
+                        <i class="fa-solid fa-tags rotate-90"></i>
+                    </div>
+                    <h1 class="font-weight-bolder">@displayName</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="border-bottom mb-3 d-flex">
+                    @if (Model.Slug.Contains("search?query="))
+                    {
+                        <a href="@(Model.Slug + "&type=bai-viet")" class="text-reset mr-3 px-2">
+                            <div class="pb-2 font-weight-light @(isPostsPage?"border-bottom-dark":"")">Bài viết</div>
+                        </a>
+                        <a href="@(Model.Slug + "&type=tai-lieu")" class="text-reset">
+                            <div class="pb-2 font-weight-light @(isDocumentsPage?"border-bottom-dark":"")">Tài liệu</div>
+                        </a>
+                    }
+                    else
+                    {                      
+                        <a asp-controller="the-loai" asp-action="@Model.Slug" asp-route-type="bai-viet" class="text-reset mr-3 px-2">
+                            <div class="pb-2 font-weight-light @(isPostsPage?"border-bottom-dark":"")">Bài viết</div>
+                        </a>
+                        <a asp-controller="the-loai" asp-action="@Model.Slug" asp-route-type="tai-lieu" class="text-reset">
+                            <div class="pb-2 font-weight-light @(isPostsPage?"":"border-bottom-dark")">Tài liệu</div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                @if (Model.Posts != null && Model.Posts.Count > 0)
+                {
+                    foreach (var item in Model.Posts)
+                    {
+                        <div class="border-bottom mt-3">
+                            <div class="d-flex align-items-center align-middle">
+                                <img style="" class="avatar-sm bg-info rounded-circle" src="https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg">
+                                @{
+                                    var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";
+                                }
+                                <span class="small ml-2 mb-0 text-capitalize">@itemAuthorFullName</span>
+                                <span class="font-weight-bold mx-1">·</span>
+                                <span class="small mb-0 text-muted">@CreateDateString(item.CreatedAt)</span>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div>
+                                        <a href="/Post/@item.Slug" class="text-reset">
+                                            <h2 class="item-title mb-1">@item.Title</h2>
+                                            <div>
+                                                @{
+                                                    string rawContent = Regex.Replace(item.Content, "<.*?>", String.Empty);
+                                                    var time = rawContent.Split(" ").Length % 60 == 0 ? rawContent.Split(" ").Length / 60 : rawContent.Split(" ").Length / 60 + 1;
+                                                    rawContent = rawContent.Substring(0, rawContent.Length > 115 ? 115 : rawContent.Length);
+                                                }
+                                                <p>@(rawContent.Length < 115 ? Html.Raw(rawContent) : @Html.Raw(rawContent + "..."))</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="py-4">
+                                        <a href="/the-loai/@item.Category.Slug" class="badge small font-weight-normal px-2 py-1 badge-pill badge-light">
+                                            @item.Category.Name
+                                        </a>
+                                        <span class="ml-2 small text-muted">@time phút để đọc</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 d-flex justify-content-end align-items-start">
+                                    <img src="@item.Thumbnail.Url" style="max-height: 100px; height: 100px; width: 100px; object-fit: cover; object-position: center" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (Model.Documents != null && Model.Documents.Count > 0)
+                {
+                    @foreach (var item in Model.Documents)
+                    {
+                        <div class="border-bottom mt-3">
+                            <div class="d-flex align-items-center align-middle">
+                                <img style="" class="avatar-sm bg-info rounded-circle" src="https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg">
+                                @{
+                                    var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";
+                                }
+                                <span class="small ml-2 mb-0 text-capitalize">@itemAuthorFullName</span>
+                                <span class="font-weight-bold mx-1">·</span>
+                                <span class="small mb-0 text-muted">@CreateDateString(item.CreatedAt)</span>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div>
+                                        <a href="/Document/@item.Id" class="text-reset">
+                                            <h2 class="item-title mb-1">@item.Name</h2>
+                                            <div>
+                                                @{
+                                                    string rawContent = Regex.Replace(item.Description, "<.*?>", String.Empty);
+                                                    var time = rawContent.Split(" ").Length % 60 == 0 ? rawContent.Split(" ").Length / 60 : rawContent.Split(" ").Length / 60 + 1;
+                                                    rawContent = rawContent.Substring(0, rawContent.Length > 115 ? 115 : rawContent.Length);
+                                                }
+                                                <p>@(rawContent.Length < 115 ? Html.Raw(rawContent) : @Html.Raw(rawContent + "..."))</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="py-4">
+                                        <a href="/the-loai/@item.Category.Slug" class="badge small font-weight-normal px-2 py-1 badge-pill badge-light">
+                                            @item.Category.Name
+                                        </a>
+                                        <span class="ml-2 small text-muted">@time phút để đọc</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 d-flex justify-content-end align-items-start">
+                                    <img src="https://thumbs.dreamstime.com/b/document-icon-vector-stack-paper-sheets-illustration-131104983.jpg" style="max-height: 100px; height: 100px; width: 100px; object-fit: cover; object-position: center" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+    <div class="col-4">
+        
+    </div>
 </div>
 
-<div class="row align-items-stretch">
-    @if(post != null)
+@{
+    string CreateDateString(DateTime dateTime)
     {
-        <div class="col-12 mb-5">
-            <div class="card bg-white border-light flex-lg-row align-items-center m-lg-0 p-4">
-                <a asp-action="Details" asp-controller="Post" asp-route-slug="@post.Slug" class="col-12 col-lg-6">
-                    <img class="card-img-top rounded" src="@post.Thumbnail.Url"/>
-                </a>
-                <div class="card-body col-12 col-lg-6 d-flex flex-column justify-content-between py-4 p-0 p-lg-3 p-xl-5">
-                    <a asp-action="Details" asp-controller="Post" asp-route-slug="@post.Slug">
-                        <h2>@post.Title</h2>
-                    </a>
-                    <div class="mb-3">
-                        @Html.Raw(post.Description)
-                    </div>
-                    
-                    <div class="d-flex align-items-center">
-                        <img class="avatar-sm rounded-circle  ml-2 mb-0">
-                        @{var authorFullName = $"{post.Author.LastName} {post.Author.FirstName}";}
-                        <h3 class="h6 small ml-2 mb-0">@authorFullName </h3>
-                        <span class="h6 text-muted font-weight-normal mb-0 ml-auto"> 
-                            @post.CreatedAt.ToString("dd-MM-yyyy")
-                            </span>
-                    </div>
-                </div>
-            </div>
-        </div> 
+        var days = new string[] { "Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy" };
+        return $"{dateTime.ToString("dd/MM/yyyy")}";
     }
-    
-    @{
-        foreach(var item in Model.Posts)
-        {
-            <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-5">
-                <div class="card bg-white border p-4 rounded h-100">
-                    <a asp-action="Details" asp-controller="Post" asp-route-slug="@item.Slug">
-                        <img class="card-img-top rounded" src="@item.Thumbnail.Url"/>
-                    </a>
-                    <div class="card-body p-0 pt-4">
-                        <a asp-action="Details" asp-controller="Post" asp-route-slug="@item.Slug"  class="h4">
-                            @item.Title
-                        </a>
 
-                            <div class="d-flex align-items-center my-4">
-                            <img style="" class="avatar-sm bg-info rounded-circle ml-2 mb-0" src="https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg">
-                            @{var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";}
-                            <h3 class="h6 small ml-2 mb-0">@itemAuthorFullName</h3>
-                        </div>
-
-                        <p class="mb-0">
-                            @Html.Raw(item.Description)
-                        </p>
-                                                     
-                    </div>
-                </div>
-            </div>
-        }
-    }
-    </div>
-
+}

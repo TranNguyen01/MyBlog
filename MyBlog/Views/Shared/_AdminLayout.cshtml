@@ -1,0 +1,138 @@
+﻿@using MyBlog.Utilities;
+@using static MyBlog.Utilities.MenuList;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+@inject AppDbContext Context
+@{
+    MenuItem[] menuItems = MenuList.AdminMenu();
+    var user = await UserManager.GetUserAsync(User);
+    var userRoles = await UserManager.GetRolesAsync(user);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>We share</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-reboot.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-grid.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jq-3.6.0/dt-1.13.1/datatables.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.css" integrity="sha512-9nqhm3FWfB00id4NJpxK/wV1g9P2QfSsEPhSSpT+6qrESP6mpYbTfpC+Jvwe2XY27K5mLwwrqYuzqMGK5yC9/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro-v6@18657a9/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="~/css/admin.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jq-3.6.0/dt-1.13.1/datatables.min.css" />
+
+</head>
+
+<body id="page-top" class="position-relative">
+    <div class="d-flex flex-row align-items-stretch position-relative">
+        <ul class="navbar-nav min-vh-100 sidebar ">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="statistic">
+                <div class="sidebar-brand-icon">
+                    <i class="fa-regular fa-blog fa-xl"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">We share</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            @{
+              
+                foreach (var item in menuItems)
+                {
+                    bool isActive = false;
+                    foreach (var role in userRoles)
+                    {
+                        if (item.Role.Contains(role))
+                            isActive = item.Role.Contains(role);
+                    }
+                    if (isActive)
+                    {                        
+                        <li class="nav-item active">
+                            <a class="nav-link" asp-action="@item.Action" asp-controller="@item.Controller">
+                                <i class="fas fa-fw fa-tachometer-alt"></i>
+                                <span>@item.Name</span>
+                            </a>
+                        </li>
+                    }
+                }
+            }
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0 icon-btn text-white bg-info" id="sidebarToggle">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <div id="content-wrapper" class="d-flex flex-column w-100 overflow-hidden">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                         <!-- Nav Item - Alerts -->
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            var Avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
+                            var fullName = $"{user.LastName} {user.FirstName}";
+                            <li class="nav-item dropdown no-arrow">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@fullName</span>
+                                    <img class="img-profile rounded-circle"
+                                            src="@(Avatar!=null ? Avatar.Url: "https://vivureviews.com/wp-content/uploads/2022/08/avatar-vo-danh-9.png")">
+                                </a>
+                                <!-- Dropdown - User Information -->
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                        aria-labelledby="userDropdown">
+                                    <a class="dropdown-item" href="/Setting">
+                                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Thông tin tài khoản
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <form asp-action="Logout" asp-controller="Account" method="post">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            Đăng xuất
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+
+                </nav>
+
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+
+            </div>
+        </div>
+        <div class="alert-container pt-2" id="alert-container">
+        </div>
+    </div>
+</body> 
+@await RenderSectionAsync("Scripts", required: false)
+</html>

@@ -9,11 +9,15 @@
 @if (SignInManager.IsSignedIn(User))
 {
     var user = await UserManager.GetUserAsync(User);
-    var avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
-    var imgUrl = avatar != null ? avatar.Url : "";
-    <a id="manage" class="nav-link text-dark py-0" asp-controller="Account" asp-action="Setting">
-            <img class="avatar-md rounded-circle" src="@imgUrl">
-    </a>
+    if(user != null)
+    {
+        var avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
+        var imgUrl = avatar != null ? avatar.Url : "https://vivureviews.com/wp-content/uploads/2022/08/avatar-vo-danh-9.png";
+        <a id="manage" class="nav-link text-dark py-0" asp-controller="Account" asp-action="Setting">
+                <img class="avatar-md rounded-circle" src="@imgUrl">
+        </a>
+    }
+    
     @*<li class="nav-item">
         <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout">
             <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>

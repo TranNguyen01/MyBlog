@@ -152,10 +152,12 @@ namespace MyBlog.Migrations
 
             modelBuilder.Entity("MyBlog.Models.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -166,8 +168,8 @@ namespace MyBlog.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -184,12 +186,112 @@ namespace MyBlog.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MyBlog.Models.CensorCategory", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("CensorCategories");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Censorship", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ReasonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reply")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReasonId");
+
+                    b.ToTable("Censorships");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Collections", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("ParentCollectionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCollectionsId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Collections");
+                });
+
             modelBuilder.Entity("MyBlog.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -197,10 +299,18 @@ namespace MyBlog.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValue(new DateTime(2023, 1, 1, 20, 43, 57, 311, DateTimeKind.Local).AddTicks(2616));
 
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -215,35 +325,138 @@ namespace MyBlog.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("MyBlog.Models.Like", b =>
+            modelBuilder.Entity("MyBlog.Models.Document", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("PostId")
+                    b.Property<string>("AuthorID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BucketName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Dowloaded")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("AuthorID");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.DocumentCollection", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollectionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DocumentId", "CollectionsId");
+
+                    b.HasIndex("CollectionsId");
+
+                    b.ToTable("DocumentCollections");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Like", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "PostId");
+
+                    b.HasIndex("PostId");
 
                     b.ToTable("Likes");
                 });
 
+            modelBuilder.Entity("MyBlog.Models.Notify", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Seen")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notify");
+                });
+
             modelBuilder.Entity("MyBlog.Models.Photo", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Bytes")
                         .HasColumnType("int");
@@ -259,6 +472,9 @@ namespace MyBlog.Migrations
 
                     b.Property<string>("Path")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PostId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
@@ -278,6 +494,9 @@ namespace MyBlog.Migrations
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Version")
                         .HasColumnType("int");
 
@@ -286,21 +505,28 @@ namespace MyBlog.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PostId")
+                        .IsUnique()
+                        .HasFilter("[PostId] IS NOT NULL");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
                     b.ToTable("Photos");
                 });
 
             modelBuilder.Entity("MyBlog.Models.Post", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AuthorId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -308,6 +534,9 @@ namespace MyBlog.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -324,13 +553,19 @@ namespace MyBlog.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("ThumbnailId")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("ThumbnailId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -341,10 +576,82 @@ namespace MyBlog.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.HasIndex("ThumbnailId")
-                        .IsUnique();
-
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.PostCollection", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollectionsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PostId", "CollectionsId");
+
+                    b.HasIndex("CollectionsId");
+
+                    b.ToTable("PostCollections");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Reason", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Reasons");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ReasonId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Reviewed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReasonId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reports");
                 });
 
             modelBuilder.Entity("MyBlog.Models.User", b =>
@@ -355,8 +662,8 @@ namespace MyBlog.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AvatarId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("AvatarId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("BirthDate")
                         .IsRequired()
@@ -365,6 +672,9 @@ namespace MyBlog.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -418,10 +728,6 @@ namespace MyBlog.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AvatarId")
-                        .IsUnique()
-                        .HasFilter("[AvatarId] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -494,6 +800,67 @@ namespace MyBlog.Migrations
                     b.Navigation("ParentCategory");
                 });
 
+            modelBuilder.Entity("MyBlog.Models.CensorCategory", b =>
+                {
+                    b.HasOne("MyBlog.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBlog.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Censorship", b =>
+                {
+                    b.HasOne("MyBlog.Models.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyBlog.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyBlog.Models.Reason", "Reason")
+                        .WithMany()
+                        .HasForeignKey("ReasonId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Document");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Reason");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Collections", b =>
+                {
+                    b.HasOne("MyBlog.Models.Collections", "ParentCollections")
+                        .WithMany("ChildrenCollections")
+                        .HasForeignKey("ParentCollectionsId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("MyBlog.Models.User", "User")
+                        .WithMany("Collections")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentCollections");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MyBlog.Models.Comment", b =>
                 {
                     b.HasOne("MyBlog.Models.Post", "Post")
@@ -505,7 +872,7 @@ namespace MyBlog.Migrations
                     b.HasOne("MyBlog.Models.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -513,19 +880,82 @@ namespace MyBlog.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MyBlog.Models.Document", b =>
+                {
+                    b.HasOne("MyBlog.Models.User", "Author")
+                        .WithMany("Documents")
+                        .HasForeignKey("AuthorID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("MyBlog.Models.Category", "Category")
+                        .WithMany("Documents")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.DocumentCollection", b =>
+                {
+                    b.HasOne("MyBlog.Models.Collections", "Collection")
+                        .WithMany("DocumentCollections")
+                        .HasForeignKey("CollectionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBlog.Models.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Collection");
+
+                    b.Navigation("Document");
+                });
+
             modelBuilder.Entity("MyBlog.Models.Like", b =>
                 {
                     b.HasOne("MyBlog.Models.Post", "Post")
                         .WithMany("Likes")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MyBlog.Models.User", "User")
                         .WithMany("Likes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Notify", b =>
+                {
+                    b.HasOne("MyBlog.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Photo", b =>
+                {
+                    b.HasOne("MyBlog.Models.Post", "Post")
+                        .WithOne("Thumbnail")
+                        .HasForeignKey("MyBlog.Models.Photo", "PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyBlog.Models.User", "User")
+                        .WithOne("Avatar")
+                        .HasForeignKey("MyBlog.Models.Photo", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Post");
 
@@ -536,47 +966,84 @@ namespace MyBlog.Migrations
                 {
                     b.HasOne("MyBlog.Models.User", "Author")
                         .WithMany("Posts")
-                        .HasForeignKey("AuthorId");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("MyBlog.Models.Category", "Category")
                         .WithMany("Posts")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("MyBlog.Models.Photo", "Thumbnail")
-                        .WithOne("Post")
-                        .HasForeignKey("MyBlog.Models.Post", "ThumbnailId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("Author");
 
                     b.Navigation("Category");
-
-                    b.Navigation("Thumbnail");
                 });
 
-            modelBuilder.Entity("MyBlog.Models.User", b =>
+            modelBuilder.Entity("MyBlog.Models.PostCollection", b =>
                 {
-                    b.HasOne("MyBlog.Models.Photo", "Avatar")
-                        .WithOne("User")
-                        .HasForeignKey("MyBlog.Models.User", "AvatarId")
+                    b.HasOne("MyBlog.Models.Collections", "Collections")
+                        .WithMany("PostCollections")
+                        .HasForeignKey("CollectionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBlog.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Collections");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("MyBlog.Models.Report", b =>
+                {
+                    b.HasOne("MyBlog.Models.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Avatar");
+                    b.HasOne("MyBlog.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyBlog.Models.Reason", "Reason")
+                        .WithMany()
+                        .HasForeignKey("ReasonId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MyBlog.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Document");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Reason");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyBlog.Models.Category", b =>
                 {
                     b.Navigation("ChildrenCategory");
 
+                    b.Navigation("Documents");
+
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("MyBlog.Models.Photo", b =>
+            modelBuilder.Entity("MyBlog.Models.Collections", b =>
                 {
-                    b.Navigation("Post");
+                    b.Navigation("ChildrenCollections");
 
-                    b.Navigation("User");
+                    b.Navigation("DocumentCollections");
+
+                    b.Navigation("PostCollections");
                 });
 
             modelBuilder.Entity("MyBlog.Models.Post", b =>
@@ -584,11 +1051,19 @@ namespace MyBlog.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("Thumbnail");
                 });
 
             modelBuilder.Entity("MyBlog.Models.User", b =>
                 {
+                    b.Navigation("Avatar");
+
+                    b.Navigation("Collections");
+
                     b.Navigation("Comments");
+
+                    b.Navigation("Documents");
 
                     b.Navigation("Likes");
 

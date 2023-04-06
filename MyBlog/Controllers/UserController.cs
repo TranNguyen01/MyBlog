@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Controllers
 {
+    [Route("/User")]
     public class UserController : Controller
     {
         private readonly UserManager<User> _UserManager;

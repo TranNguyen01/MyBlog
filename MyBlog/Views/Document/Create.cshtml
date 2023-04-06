@@ -1,0 +1,55 @@
+﻿@using MyBlog.Models.ViewModels
+@model ViewDocumentCrt
+@{
+    Layout = "_AccountLayout";
+    ViewData["CurrentPage"] = "CreateDocument";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="container overflow-hidden">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @using (Html.BeginForm("Create", "Document", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {   
+            <div class="form-group">
+                <input asp-for="Name" class="form-control title-input" placeholder="Tên tài liệu..."/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.AllCategories"></select>
+            </div>
+
+            <div class="form-group">
+                <textarea asp-for="Description" class="form-control" id="desciption_editor" placeholder="Mô tả ngẵn gọn..." rows="30"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="File" class="control-label"></label>
+                <span asp-validation-for="File" class="text-danger"></span>
+                @Html.TextBox("file", "", new {  type= "file"})
+            </div>
+
+            <div class="form-group d-flex justify-content-center position-relative">
+                <a asp-action="Index" asp-controller="MyDocuments" style="position:absolute; top:50%; left:0; transform:translateY(-50%);">
+                    <i class="bi bi-arrow-left"></i>
+                    Trở lại
+                </a>
+                <button type="submit" class="btn btn-primary">Đăng tải tài liệu</button>
+            </div>
+       }
+    </div>
+</div>
+
+@{
+    var contentEditor = new TextEditor("desciption_editor", "Mô tả nội dung tài liệu", height: 300);
+}
+
+
+@section Scripts {
+    <script src="~/js/setting.js"></script>
+    @await Html.PartialAsync("_TextEditor", contentEditor)
+    <script src="~/js/post.js"></script>
+    <link rel="stylesheet" href="~/css/post.css" />
+}

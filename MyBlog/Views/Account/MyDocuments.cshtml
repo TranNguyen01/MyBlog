@@ -1,0 +1,45 @@
+﻿@model ICollection<Document>
+@{
+     ViewData["CurrentPage"] = "MyDocuments";
+}
+<div class="row">
+    @foreach(var document in Model)
+    {
+        <div class="col-12">
+            <div class="card container mb-4 border-light">
+                <div class="row">
+                   @* <div class="col-12 col-md-6 col-lg-4 p-0">
+                        <a asp-action="@document.Id" asp-controller="Document">
+                            <img src="" class="card-img"/>
+                        </a>
+                    </div>*@
+                    <div class="col-12 col-md-12 col-lg-12 p-0">
+                        <div class="card-body py-lg-0">
+                            <div class="d-flex flex-row align-items-center justify-content-between mb-2">
+                                <div class="small">Ngày đăng tải: @document.CreatedAt.ToString("dd-MM-yyyy")</div>
+                                <div class="btn-group">
+                                    <button class="icon-btn" data-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        @*<a class="dropdown-item" asp-action="Edit" asp-controller="Document" asp-route-id="@document.Id">Chỉnh sửa</a>*@
+                                        <form asp-action="Delete" asp-controller="Document" asp-route-id="@document.Id" method="get">
+                                           @* <input hidden name="id" value="@document.Id">*@
+                                            <button class="dropdown-item" type="submit">Xoá</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <a asp-action="@document.Id" asp-controller="Document" class="text-decoration-none">
+                                <h2 class="h5 control-label text-custom-primary ">@document.Name</h2>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/setting.js"></script>
+}
+

@@ -1,14 +1,25 @@
-﻿.avatar-sm {
+﻿body {
+    font-family: 'Inter', sans-serif;
+   
+    margin-bottom: 0;
+}
+
+.avatar-sm {
     width: 1.5rem;
     height: 1.5rem;
     object-position:center;
     object-fit:cover
 }
 
+h2 {
+    font-size: 1.5rem;
+    font-weight: 700
+}
+/*
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
     color: #1c2540;
     font-weight: 600
-}
+}*/
 
 .h4 {
     font-size: calc(1.275rem + .3vw);
@@ -21,4 +32,13 @@ a {
 a:hover {
     color: #0b0f18;
     text-decoration: none
+}
+
+.item-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.chip {
+    
 }

@@ -7,11 +7,11 @@ namespace MyBlog.Models.ViewModels
     public class ViewComment
     {
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [Display(Name = "Bài viết")]
-        public int PostId { get; set; }
+        public string PostId { get; set; }
 
 
         [Display(Name = "Bài viết")]

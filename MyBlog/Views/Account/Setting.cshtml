@@ -64,7 +64,7 @@
                
     <div class="row align-items-center py-3">
         <div class="col-7 d-flex flex-row">
-            <img id="preview_avatar" src="Avatar?.Url" alt="avatar" class="avatar-lg bg-info rounded-circle">
+            <img id="preview_avatar" src="@(Model.Avatar != null ? Model.Avatar.Url : "")" alt="avatar" class="avatar-lg rounded-circle">
             <div class="px-3 d-flex flex-column justify-content-center">
                     <div class="mb-0 control-label">Ảnh đại diện của bạn</div>
                     <small>JPG, GIF or PNG</small>
@@ -119,6 +119,6 @@
 </div>
 
 @section Scripts {
-    <script src="~/js//setting.js"></script>
+    <script src="~/js/setting.js"></script>
 }
 

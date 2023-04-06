@@ -40,7 +40,7 @@
             <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-5">
                 <div class="card bg-white border p-4 rounded h-100">
                     <a asp-action="Details" asp-controller="Post" asp-route-slug="@item.Slug">
-                        <img class="card-img-top rounded" src="@item.Thumbnail.Url"/>
+                        <img class="card-img-top rounded" src="@item.Thumbnail.Url" style="max-height: 170px; object-fit: cover; object-position: center"/>
                     </a>
                     <div class="card-body p-0 pt-4">
                         <a asp-action="Details" asp-controller="Post" asp-route-slug="@item.Slug"  class="h4">

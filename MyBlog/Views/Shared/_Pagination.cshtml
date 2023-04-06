@@ -16,7 +16,14 @@
         @{
             for(int p = 1; p <= Model.maxPage; p++)
             {
-                    <li class="page-item"><a class="page-link" asp-controller="@Model.controller" asp-action="@Model.action" asp-route-page="@p" >@p</a></li>
+                if (p == Model.currentPage)
+                {
+                    <li class="page-item"><a class="page-link  bg-info text-light" asp-route-page="@p" data-page="@p">@p</a></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" asp-route-page="@p" data-page="@p">@p</a></li>
+                }  
             }
         }
         <li class="page-item @nextClass">
@@ -26,3 +33,28 @@
         </li>
     </ul>
 </nav>
+
+<script>
+    $(".page-link").on('click', function(event) {
+        
+        event.preventDefault();
+        let page = $(event.target).data("page")
+        if(window.location.href.includes("?")){
+            let index = window.location.href.indexOf("page=")
+            let lastIndex = window.location.href.indexOf("&&", index)
+            if(index == -1)
+                window.location.href+=`&&page=${page}`
+            else if(lastIndex == -1){
+                let href = window.location.href.substring(0, index);
+                href += `page=${page}`
+                window.location.href = href
+            }else{
+                let href = window.location.href.slice(index, lastIndex)
+                window.location.href = window.location.href.replace(href, `page=${page}`)
+            }
+        }else{
+            window.location.href += `?page=${page}`
+        }
+       
+    });
+</script>

@@ -1,0 +1,49 @@
+﻿@using MyBlog.Models.ViewModels
+@model ViewHome
+
+<link rel="stylesheet" href="~/css/home.css" />
+<div class="row align-items-stretch">
+    @{
+        foreach (var item in Model.Documents)
+        {
+            <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-5">
+                <div class="card bg-white border p-3 rounded h-100">
+                    <div class="card-body p-0">
+                        <div class="d-flex align-items-center">
+                            <img class="avatar-sm bg-info rounded-circle mb-0" src="https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg">
+                            @{
+                                var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";
+                            }
+                            <h6 class="h6 small ml-2 mb-0">@itemAuthorFullName</h6>
+                        </div>
+                        <div class=" my-1">
+                            <a asp-action="@item.Id" asp-controller="Document" class="h4 text-nowrap text-truncate">
+                            @item.Name
+                            </a>
+                        </div>
+                        <div class="mb-0 d-flex flex-row align-items-center">
+                            <time class="text-muted small" datetime="@item.CreatedAt.ToString("yyyy-MM-dd")">@CreateDateString(item.CreatedAt)</time>
+                            <span class="mx-1 h6 mb-0">·</span>
+                            <span class="text-muted small">@item.Dowloaded lượt tải</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+@{
+    int maxPage = Model.MaxPage;
+    int currentPage = Model.CurrentPage;
+    var paginationModel = new Pagination() { currentPage = currentPage, maxPage = maxPage, action = "Document", controller = "Home" };
+}
+@await Html.PartialAsync("_Pagination", paginationModel)
+
+@{
+    string CreateDateString(DateTime dateTime)
+    {
+        var days = new string[] { "Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy" };
+        return $"{dateTime.ToString("dd/MM/yyyy")}";
+    }
+
+}

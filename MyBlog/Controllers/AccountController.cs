@@ -97,7 +97,8 @@ namespace MyBlog.Controllers
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     BirthDate = model.BirthDate,
-                    Gender = model.Gender
+                    Gender = model.Gender,
+                    CreatedAt = DateTime.Now
                 };
 
                 var result = await _userManager.CreateAsync(newUser, model.Password);
@@ -170,7 +171,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost("/logout")]
-        [Authorize(Roles = "User, Admin, Manage")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
@@ -179,7 +180,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/Setting")]
-        [Authorize(Roles = "User, Admin, Manage")]
+        [Authorize]
         public async Task<IActionResult> Setting()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -190,7 +191,7 @@ namespace MyBlog.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Gender = user.Gender,
-                Avatar = avatar != null ? avatar : new Photo() { Url = "https://vnn-imgs-a1.vgcloud.vn/image1.ictnews.vn/_Files/2020/03/17/trend-avatar-1.jpg" },
+                Avatar = avatar != null ? avatar : new Photo() { Url = "https://vivureviews.com/wp-content/uploads/2022/08/avatar-vo-danh-9.png" },
                 BirthDate = user.BirthDate,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
@@ -237,17 +238,18 @@ namespace MyBlog.Controllers
                 Version = int.Parse(result.Version, provider),
                 Width = result.Width
             };
+            _Context.Photos.Add(avatarPhoto);
+            await _Context.SaveChangesAsync();
 
             var user = await _userManager.GetUserAsync(User);
-            user.Avatar = avatarPhoto;
-
+            user.AvatarId = avatarPhoto.Id;
             await _userManager.UpdateAsync(user);
 
             return RedirectToAction("Setting");
         }
 
         [HttpPost("/Setting")]
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Setting(ViewUserInfo model)
         {
@@ -284,18 +286,35 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/MyItems")]
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         public async Task<IActionResult> MyItems()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login");
 
-            var posts = await _Context.Posts.Include(p => p.Thumbnail).Where(p => p.AuthorId == user.Id).ToListAsync();
+            var posts = await _Context.Posts
+                .Include(p => p.Thumbnail)
+                .Where(p => p.AuthorId == user.Id && p.Deleted == false)
+                .ToListAsync();
+            return View(posts);
+        }
+
+        [HttpGet("/MyDocuments")]
+        [Authorize]
+        public async Task<IActionResult> MyDocuments()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var posts = await _Context.Documents
+                .Include(d=>d.Category)
+                .Where(p => p.AuthorID == user.Id  && p.Deleted == false)
+                .ToListAsync();
             return View(posts);
         }
 
         [HttpPost]
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ViewPassword model)
         {

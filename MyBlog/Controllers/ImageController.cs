@@ -27,7 +27,7 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/image/signature")]
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         public IActionResult GetCloudinarySignInfo()
         {
             var now = (DateTimeOffset)DateTime.Now;

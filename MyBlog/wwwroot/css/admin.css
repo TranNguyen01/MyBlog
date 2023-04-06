@@ -1,0 +1,55 @@
+﻿body {
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    margin-bottom: 0;
+}
+
+.sidebar {
+    width: 16rem;
+    background-color: #2c4078;
+    background-image: linear-gradient(180deg,#1c2540,#2c4078);
+    background-size: cover;
+}
+
+.sidebar .sidebar-brand {
+    height: 4.375rem;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .05rem;
+    z-index: 1;
+}
+
+.sidebar .sidebar-brand .sidebar-brand-icon,.sidebar-brand-text {
+    color: #fff;
+}
+
+.sidebar-divider {
+    border-top: 1px solid #ffffff26;
+    margin: 0 1rem 1rem;
+}
+
+.sidebar-heading {
+    padding: 0 1rem;
+    color: rgb(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    font-size: 0.75rem
+
+}
+
+.nav-item .nav-link {
+    color: #fff;
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.85rem
+}
+
+.nav-item.active .nav-link {
+   font-weight: 700
+}
+
+.img-profile {
+    height: 1.5rem
+}

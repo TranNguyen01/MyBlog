@@ -1,0 +1,36 @@
+﻿@model Post
+<div class="container post-article" post-id="@Model.Id">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8 text-left">
+            <h1 class="font-weight-bold">@Model.Title</h1>
+            <div class="text-left mt-3 mb-4">
+                @{
+                    var authorFullName = $"{Model.Author.LastName} {Model.Author.FirstName}";
+                }
+                <span class="font-weight-bold mr-2">@authorFullName</span>
+                <time class="text-muted" datetime="@Model.CreatedAt.ToString("yyyy-MM-dd")">@CreateDateString(Model.CreatedAt)</time>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8 border-bottom mb-3">
+            @Html.Raw(Model.Content)
+        </div> 
+    </div>
+</div>
+
+@{
+    string CreateDateString(DateTime dateTime)
+    {
+        var days = new string[] { "Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy" };
+        return $"{days[(int)dateTime.DayOfWeek]}, {dateTime.ToString("dd/MM/yyyy")}";
+    }
+
+}
+
+@section Scripts {
+    <script src="~/js/detail.js" type="text/javascript"></script>
+}
+<link rel="stylesheet" href="~/css/site.css">
+<link rel="stylesheet" href="~/css/post.css">

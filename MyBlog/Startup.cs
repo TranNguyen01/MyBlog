@@ -7,9 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MotoBlog.Services;
 using MyBlog.Models;
+using MyBlog.Service;
+using MyBlog.Services;
 using MyBlog.Utilities;
+using StackExchange.Redis;
 using System;
+using System.Text.Json.Serialization;
 using static MyBlog.Utilities.SendMailService;
 
 namespace MyBlog
@@ -33,7 +38,13 @@ namespace MyBlog
 
 
             services.AddControllersWithViews()
+                 .AddNewtonsoftJson(options =>
+                 {
+                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                 })
                 .AddCookieTempDataProvider();
+
 
             services.AddSession();
 
@@ -86,7 +97,26 @@ namespace MyBlog
                 options.AccessDeniedPath = "/Notfound";
             });
 
-            services.AddSingleton(new Cloudinary(new Account("hehohe", "835266539265652", "T_HlU-UeEDX1OxnzhMLnGvlrunA")));
+            //Redis cache
+            services.AddStackExchangeRedisCache(option =>
+                option.Configuration = Configuration.GetConnectionString("RedisConnectionString")
+            );
+            services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(Configuration.GetConnectionString("RedisConnectionString"))
+            );
+            services.AddSingleton<IElasticsearch, ElasticSearch>();
+
+            services.AddSingleton<IMinIOService, MinIOService>();
+
+            services.AddSingleton(s =>
+            {
+                var cloud = Configuration.GetSection("Cloudinary").GetValue(typeof(string), "cloud").ToString();
+                var apiKey = Configuration.GetSection("Cloudinary").GetValue(typeof(string), "apiKey").ToString();
+                var apiSecret = Configuration.GetSection("Cloudinary").GetValue(typeof(string), "apiSecret").ToString();
+                return new Cloudinary(new Account(cloud, apiKey, apiSecret));
+            });
+            //services.AddSingleton(new Cloudinary(new Account("hehohe", "835266539265652", "T_HlU-UeEDX1OxnzhMLnGvlrunA")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

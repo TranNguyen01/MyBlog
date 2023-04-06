@@ -2,30 +2,33 @@
 @{
     ViewData["CurrentPage"] = "CategoriesManage";
 }
-<div class= "card-body border border-light">
-<div class="container mb-3">
-   <a asp-action="Create" asp-controller="Categories" class="btn-custom-secondary d-block text-decoration-none py-3">
-       <i class="fa-solid fa-plus"></i>
-       Tạo danh mục mới
-   </a>
-</div>
-
-<div class="container">
-    <table class="table table-borderless text-secondary">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.Name)</th>
-                <th>@Html.DisplayNameFor(model => model.Slug)</th>
-                <th>@Html.DisplayNameFor(model => model.ParentCategory)</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                await ShowCategories(Model.ToList(), 0);
-            }
-        </tbody>
-    </table>
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Quản lý người dùng</h6>
+        <a asp-action="Create" asp-controller="Categories" class="btn-custom-secondary d-block text-decoration-none py-2 px-3">
+            <i class="fa-solid fa-plus"></i>
+            Thêm thể loại mới
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+                <table class="table table-bordered" id="categoryTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.Slug)</th>
+                        <th>@Html.DisplayNameFor(model => model.ParentCategory)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        await ShowCategories(Model.ToList(), 0);
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div class="modal" tabindex="-1" id="myModal">
@@ -38,7 +41,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>Bạn có chắc chắn muốn xoá bài viết này!.</p>
+        <p>Bạn có chắc chắn muốn xoá thể loại này này!.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Không</button>
@@ -57,7 +60,7 @@
             <tr>
                 <td>  
                     @Html.Raw(prefix)
-                    <a asp-action="Detail" asp-controller="Categories" asp-route-id="@category.Id">
+                        <a asp-action="@category.Slug" asp-controller="the-loai">
                         <strong> @category.Name</strong>
                     </a>
                 </td>
@@ -70,11 +73,15 @@
                 {
                      <td></td>
                 }
-                <td class="align-middle text-lg">
-                    <a asp-action="Edit" asp-controller="Categories" asp-route-id="@category.Id">Sửa</a>  |
+                <td class="align-middle text-lg text-center">
+                    <a asp-action="Edit" asp-controller="Categories" asp-route-id="@category.Id" class="icon-btn">
+                        <i class="fas fa-edit"></i>
+                    </a>  |
                     <form asp-action="Delete" asp-controller="Categories"  asp-route-id="@category.Id" method="post" id="delete_form_@category.Id" hidden>
                     </form>
-                    <a href="#" onclick="DeletePost('@category.Id')" >Xoá</a>                            
+                    <button href="#" onclick="DeletePost('@category.Id')" class="icon-btn text-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>                            
                 </td>
             </tr>
             if(category.ChildrenCategory!=null && category.ChildrenCategory.Count > 0)
@@ -116,6 +123,12 @@
             }
             $("#confirm_delete_post").on("click", callBack)
         }
+
+        $(document).ready(function () {
+            $('#categoryTable').DataTable();
+        })
     </script>
+
+
 }
 </div>

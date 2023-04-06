@@ -1,58 +1,73 @@
 ﻿@using MyBlog.Models.ViewModels
 @model List<ViewUserAndRole>
 @{
-    Layout = "_AccountLayout";
+    Layout = "_AdminLayout";
     ViewData["CurrentPage"] = "UserManage";
     List<string> roles = (List<string>)ViewData["AllRoles"];
 }
 
 
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Quản lý người dùng</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="userTable">
+                <thead>
+                    <tr>
+                        <th>Tài khoản</th>
+                        <th>Họ và tên</th>
+                        <th>Vai trò</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr class="">
+                            <td>@user.Email</td>
+                            <td>@user.LastName @user.FirstName</td>
+                            <td>
+                                <div class="dropdown ">
+                                    <button class="btn dropdown-toggle disabled" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        @string.Join(',', user.Roles)
+                                    </button>
+                                    <div class="dropdown-menu check-menu">
+                                        <form asp-controller="User" asp-action="UpdateRole" asp-route-id="@user.Id" method="post">
+                                            @foreach (var role in roles)
+                                            {
+                                                var isChecked = user.Roles.Contains(role);
+                                                <label class="dropdown-item text-left @(isChecked==true?"selected":"")">
+                                                    <input type="checkbox" value="@role" name="Roles" @(isChecked==true?"checked":"")> @role
+                                                </label>
+                                            }
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tài khoản</th>
-            <th>Họ và tên</th>
-            <th>Vai trò</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var user in Model)
-        {
-            <tr class="">
-                <td>@user.Email</td>
-                <td>@user.LastName @user.FirstName</td>
-                <td>
-                    <div class="dropdown ">
-                        <button class="btn dropdown-toggle disabled" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @string.Join(',', user.Roles)
-                        </button>
-                        <div class="dropdown-menu check-menu">
-                            <form asp-controller="User" asp-action="UpdateRole" asp-route-id="@user.Id" method="post">
-                                @foreach(var role in roles)
-                                    {
-                                        var isChecked = user.Roles.Contains(role);
-                                        <label class="dropdown-item text-left @(isChecked==true?"active":"")" >
-                                            <input type="checkbox" value="@role" name="Roles" @(isChecked==true?"checked":"")> @role
-                                        </label>
-                                    }
-                            </form>
-                        </div>
-                    </div>
-                </td>
+                            <td>
+                                <div>
+                                    <button class="icon-btn text-primary mr-2 edit-role-btn">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button class="icon-btn text-success submit-role-btn d-none">
+                                        <i class="fa-solid fa-file-check"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-                <td>
-                   <div>
-                       <button class="btn btn-sm btn-primary mr-2 edit-role-btn">
-                           <i class="fa-solid fa-pen-to-square"></i>
-                       </button>
-                       <button class="btn btn-sm btn-success submit-role-btn d-none" >
-                           <i class="fa-solid fa-file-check"></i>
-                       </button>
-                   </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+
+
+@section Scripts {
+    <script src="~/js/UserManager.js"></script>
+}

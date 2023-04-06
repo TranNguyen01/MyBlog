@@ -1,0 +1,26 @@
+﻿
+div.root-collections-img {
+    position: relative
+}
+
+div.root-collections-img img {
+    object-fit: cover;
+    /*height: 100%*/
+}
+
+div.root-collections-img.l {
+    z-index: 6;
+    border-right: 3px solid rgb(250, 250, 250);
+}
+
+div.root-collections-img.m {
+    margin-left: -80px;
+    z-index: 4;
+    border-right: 3px solid rgb(250, 250, 250);
+}
+
+div.root-collections-img.r {
+    margin-left: -130px;
+    z-index: 2;
+   
+}

@@ -9,9 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-reboot.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-grid.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.css" integrity="sha512-9nqhm3FWfB00id4NJpxK/wV1g9P2QfSsEPhSSpT+6qrESP6mpYbTfpC+Jvwe2XY27K5mLwwrqYuzqMGK5yC9/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro-v6@18657a9/css/all.min.css" rel="stylesheet" type="text/css" />
     
@@ -29,7 +33,7 @@
             <div class="container">
                 <a class="navbar-brand mg-lg-5 d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="fa-solid fa-blog fa-2x mr-2"></i>
-                    MyBlog
+                    We share
                 </a>
                 <div class="d-flex align-items-center">
                     <form class="">
@@ -47,9 +51,9 @@
         </nav>
     </header>
     <div class="pt-5 position-relative">
-        <div class="container rounded position-relative">
+        <div class="container-xl rounded position-relative">
             <div class="row">
-                <div class="col-12 col-md-4 mb-4 mb-md-0">
+                <div class="col-12 col-md-4 col-xl-3 mb-4 mb-md-0">
                     <div class="card p-2 border-light">
                         <div class="card-header text-center border-0  bg-white rounded">
                             @if (SignInManager.IsSignedIn(User))
@@ -57,7 +61,7 @@
                                 var user = await UserManager.GetUserAsync(User);
                                 var Avatar = await Context.Photos.FirstOrDefaultAsync(p => p.Id == user.AvatarId);
                                 var fullName = $"{user.LastName} {user.FirstName}";
-                                <img class="avatar-xl rounded-circle mb-3 " src="@Avatar?.Url" />
+                                <img class="avatar-xl rounded-circle mb-3 " src="@(Avatar!=null ? Avatar.Url: "https://vivureviews.com/wp-content/uploads/2022/08/avatar-vo-danh-9.png")" />
                                 <h2 class="h5 control-label mb-3"> Chào, @fullName</h2>
                                 <form asp-action="Logout" asp-controller="Account" method="post">
                                     <button type="submit"  class="btn btn-sm btn-custom-primary">
@@ -92,29 +96,37 @@
                                         },
                                         new
                                         {
+                                            Action = "Create",
+                                            Controller = "Document",
+                                            Name = "Đăng tài liệu",
+                                            CurrentPage = "CreateDocument",
+                                            Role = "User, Manager, Admin"
+                                        },
+                                        new
+                                        {
+                                            Action = "MyDocuments",
+                                            Controller = "Account",
+                                            Name = "Tài liệu của tôi",
+                                            CurrentPage = "MyDocuments",
+                                            Role = "User, Manager, Admin"
+                                        },
+                                        new
+                                        {
+                                            Action = "MyCollections",
+                                            Controller = "Collections",
+                                            Name = "Bộ sưu tập",
+                                            CurrentPage = "MyCollections",
+                                            Role = "User"
+                                        },
+                                        new
+                                        {
                                             Action = "Setting",
                                             Controller = "Account",
                                             Name = "Thông tin tài khoản",
                                             CurrentPage = "AccountSetting",
                                             Role = "User, Manager, Admin"
                                         },
-                                        new
-                                        {
-                                            Action = "Manage",
-                                            Controller = "Categories",
-                                            Name = "Quản lí thể loại",
-                                            CurrentPage = "CategoriesManage",
-                                            Role = "Manager, Admin"
-                                        },
-                                        new
-                                        {
-                                            Action = "Index",
-                                            Controller = "User",
-                                            Name = "Quản lí người dùng",
-                                            CurrentPage = "UserManage",
-                                            Role = "Admin"
-                                        },
-                                                                                    };
+                                    };
 
                                     @if (SignInManager.IsSignedIn(User))
                                     {
@@ -126,7 +138,8 @@
                                             bool isActive = false;
                                             foreach (var role in userRole)
                                             {
-                                                isActive = item.Role.Contains(role);
+                                                if (item.Role.Contains(role))
+                                                    isActive = item.Role.Contains(role);
                                             }
 
                                             if (isActive)
@@ -147,8 +160,8 @@
                     </div>
                 </div>
                 <div class="d-lg-none"></div>
-                <div class="col-12 col-md-8">
-                    <main role="main"  class="container">
+                <div class="col-12 col-md-8 col-xl-9">
+                    <main role="main" class="container-xl">
                         @RenderBody()
                     </main>
                 </div>
@@ -161,12 +174,10 @@
     
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - MyBlog - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - We share - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    @await RenderSectionAsync("Scripts", required: false);
 </body>
 </html>

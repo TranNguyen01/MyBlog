@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyBlog.Models;
 using MyBlog.Models.ViewModels;
+using MyBlog.Utilities;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyBlog.Controllers
@@ -26,8 +29,25 @@ namespace MyBlog.Controllers
             _UserManager = userManager;
         }
 
+        [HttpGet]
+        [Route("/comment")]
+        public async Task<BaseResponse<List<Comment>>> GetByPostId([FromQuery] string postId)
+        {
+            var comments = await _Context.Comments
+                .Include(cm => cm.User)
+                .ThenInclude(u => u.Avatar)
+                .Where(c => c.PostId == Guid.Parse(postId))
+                .ToListAsync();
+            return new BaseResponse<List<Comment>>
+            {
+                Code = 0,
+                message = "",
+                Data = comments
+            };
+        }
+
         [HttpPost]
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("PostId,Content")] ViewComment comment)
         {
             var user = await _UserManager.GetUserAsync(User);
@@ -35,7 +55,7 @@ namespace MyBlog.Controllers
 
             if (ModelState.IsValid)
             {
-                var post = await _Context.Posts.FirstOrDefaultAsync(p => p.Id == comment.PostId);
+                var post = await _Context.Posts.FirstOrDefaultAsync(p => p.Id == Guid.Parse(comment.PostId));
                 if (post == null) return NotFound();
                 var newComment = new Comment()
                 {
@@ -70,11 +90,12 @@ namespace MyBlog.Controllers
             });
         }
 
-        [Authorize(Roles = "User, Manage, Admin")]
+        [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> Delete(int Id)
+        [Route("/Comment")]
+        public async Task<IActionResult> Delete(string Id)
         {
-            var comment = await _Context.Comments.FirstOrDefaultAsync(cmt => cmt.Id == Id);
+            var comment = await _Context.Comments.FirstOrDefaultAsync(cmt => cmt.Id == Guid.Parse(Id));
             if (comment == null) return Json(new { success = false, code = NotFound().StatusCode, message = "Bình luận không tồn tại!" });
 
             var user = await _UserManager.GetUserAsync(User);

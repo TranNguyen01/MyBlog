@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyBlog.Models;
 using MyBlog.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyBlog.Controllers
 {
+    [Route("/Categories")]
     public class CategoriesController : Controller
     {
         private readonly AppDbContext _context;
@@ -28,7 +30,7 @@ namespace MyBlog.Controllers
             var categories = await _context.Categories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.ChildrenCategory)
-                .Where(c => c.ParentCategory == null)
+                .Where(c => c.ParentCategory == null && c.Deleted == false)
                 .ToListAsync();
 
             foreach (var category in categories)
@@ -38,14 +40,25 @@ namespace MyBlog.Controllers
             return View("manage", categories);
         }
 
-        [HttpGet("/categories/manage/")]
-        [Authorize(Roles = "Manage, Admin")]
+        [HttpGet]
+        [Route("GetList")]
+        public async Task<IActionResult> GetList()
+        {
+            var categories = await _context.Categories
+               .Where(c => c.Deleted == false)
+               .ToListAsync();
+            return Ok(categories);
+        }
+
+        [HttpGet]
+        [Route("Manage/")]
+        [Authorize(Roles = "Manage,Admin")]
         public async Task<IActionResult> Manage(int page = 1, int pageSize = 15)
         {
             var categories = await _context.Categories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.ChildrenCategory)
-                .Where(c => c.ParentCategoryId == null)
+                .Where(c => c.ParentCategoryId == null && c.Deleted == false)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize).ToListAsync();
             foreach (var category in categories)
@@ -67,15 +80,15 @@ namespace MyBlog.Controllers
         }
 
 
-        public ICollection<int> GetCategoriesId(Category category)
+        public ICollection<Guid> GetCategoriesId(Category category)
         {
-            List<int> Ids = new List<int>();
-            Ids.Add(category.Id);
+            List<Guid> Ids = new List<Guid>();
+            Ids.Add((Guid)category.Id);
             if (category.ChildrenCategory != null && category.ChildrenCategory.Count > 0)
             {
                 foreach (var cate in category.ChildrenCategory)
                 {
-                    Ids.Add(cate.Id);
+                    Ids.Add((Guid)cate.Id);
                     var childrenIds = GetCategoriesId(cate);
                     Ids.AddRange(childrenIds);
                 }
@@ -83,14 +96,15 @@ namespace MyBlog.Controllers
             return Ids;
         }
 
-        [HttpGet("/Categories/Create")]
-        [Authorize(Roles = "Manage, Admin")]
+        [HttpGet]
+        [Route("Create")]
+        [Authorize(Roles = "Manage,Admin")]
         public async Task<IActionResult> Create()
         {
             var categoriesItem = _context.Categories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.ChildrenCategory)
-                .Where(c => c.ParentCategoryId == null)
+                .Where(c => c.ParentCategoryId == null && c.Deleted == false)
                 .ToList();
 
             foreach (var item in categoriesItem)
@@ -98,24 +112,19 @@ namespace MyBlog.Controllers
                 await GetChildrenCategory(item);
             }
 
-            categoriesItem.Insert(0, new Category() { Id = -1, Name = "Không có thể loại cha" });
+            categoriesItem.Insert(0, new Category() { Id = null, Name = "Không có thể loại cha" });
             ViewData["AllCategories"] = new SelectList(CreateCategoryList(categoriesItem), "Id", "Name");
             return View();
         }
 
 
         [HttpPost]
-        [Authorize(Roles = "Manage, Admin")]
-        [ValidateAntiForgeryToken]
+        [Route("Create")]
+        [Authorize(Roles = "Manage,Admin")]
         public async Task<IActionResult> Create([Bind("Name,Slug,Description,ParentCategoryId")] Category category)
         {
             if (ModelState.IsValid)
             {
-                if (category.ParentCategoryId == -1)
-                {
-                    category.ParentCategoryId = null;
-                }
-
                 if (string.IsNullOrEmpty(category.Slug))
                 {
                     category.Slug = AppUtilities.GenerateSlug(category.Name);
@@ -134,14 +143,14 @@ namespace MyBlog.Controllers
                 {
                     _context.Categories.Add(category);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return Redirect("Manage");
                 }
             }
 
             var categoriesItem = _context.Categories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.ChildrenCategory)
-                .Where(c => c.ParentCategoryId == null)
+                .Where(c => c.ParentCategoryId == null && c.Deleted == false)
                 .ToList();
 
             foreach (var item in categoriesItem)
@@ -149,9 +158,9 @@ namespace MyBlog.Controllers
                 await GetChildrenCategory(item);
             }
 
-            categoriesItem.Insert(0, new Category() { Id = -1, Name = "Không có thể loại cha" });
+            categoriesItem.Insert(0, new Category() { Id = null, Name = "Không có thể loại cha" });
             ViewData["AllCategories"] = new SelectList(CreateCategoryList(categoriesItem), "Id", "Name");
-            return View(category);
+            return Redirect("/Categories/Manage");
         }
 
         async Task<bool> IsValidSlug(Category category, bool newCategory = true)
@@ -164,15 +173,16 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Manage, Admin")]
-        public async Task<IActionResult> Edit(int? id)
+        [Route("Manage/{id}")]
+        [Authorize(Roles = "Manage,Admin")]
+        public async Task<IActionResult> Edit([FromRoute] string? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories.FindAsync(Guid.Parse(id));
             if (category == null)
             {
                 return NotFound();
@@ -186,7 +196,7 @@ namespace MyBlog.Controllers
             {
                 await GetChildrenCategory(item);
             }
-            rootCategories.Insert(0, new Category() { Id = -1, Name = "Không có thể loại cha", ParentCategory = null, ChildrenCategory = null });
+            rootCategories.Insert(0, new Category() { Id = null, Name = "Không có thể loại cha", ParentCategory = null, ChildrenCategory = null });
 
             ViewData["AllCategories"] = new SelectList(CreateCategoryList(rootCategories, 0), "Id", "Name");
             return View(category);
@@ -210,14 +220,11 @@ namespace MyBlog.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Manage, Admin")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Category category)
+        [Route("Manage/{id}")]
+        [Authorize(Roles = "Manage,Admin")]
+        public async Task<IActionResult> Edit([FromRoute] string id, Category category)
         {
-            if (id != category.Id)
-            {
-                return NotFound();
-            }
+            category.Id = Guid.Parse(id);
             var des = category.Description;
             if (ModelState.IsValid)
             {
@@ -225,50 +232,51 @@ namespace MyBlog.Controllers
                     .Include(c => c.ChildrenCategory)
                     .Include(c => c.ParentCategory)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                    .FirstOrDefaultAsync(c => c.Id == Guid.Parse(id));
 
 
-                if (existCategory == null) return NotFound();
+                if (existCategory == null) 
+                    return NotFound();
 
-                if (category.ParentCategoryId != null)
+                if (category.ParentCategoryId == null)
                 {
-                    if (category.ParentCategoryId == -1) category.ParentCategory = null;
-                    else
+                    category.ParentCategoryId = null;
+                    category.ParentCategory = null;
+                }
+                else
+                {
+                    await GetChildrenCategory(existCategory);
+                    if (!(await IsValidParentCategory(existCategory, (Guid)category.ParentCategoryId)))
                     {
-                        await GetChildrenCategory(existCategory);
-                        if (!(await IsValidParentCategory(existCategory, (int)category.ParentCategoryId)))
+                        ModelState.AddModelError("ParentCategoryId", "Danh mục cha không hợp lệ");
+
+                        var rootCategories = _context.Categories
+                            .Where(c => c.ParentCategoryId == null)
+                            .Include(c => c.ChildrenCategory)
+                            .Include(c => c.ParentCategory)
+                            .ToList();
+
+                        foreach (var item in rootCategories)
                         {
-                            ModelState.AddModelError("ParentCategoryId", "Danh mục cha không hợp lệ");
-
-                            var rootCategories = _context.Categories
-                                .Where(c => c.ParentCategoryId == null)
-                                .Include(c => c.ChildrenCategory)
-                                .Include(c => c.ParentCategory)
-                                .ToList();
-
-                            foreach (var item in rootCategories)
-                            {
-                                await GetChildrenCategory(item);
-                            }
-                            rootCategories.Insert(0, new Category() { Id = -1, Name = "Không có thể loại cha", ParentCategory = null, ChildrenCategory = null });
-
-                            ViewData["AllCategories"] = new SelectList(CreateCategoryList(rootCategories, 0), "Id", "Name");
-
-                            return View(category);
+                            await GetChildrenCategory(item);
                         }
+                        rootCategories.Insert(0, new Category() { Id = null, Name = "Không có thể loại cha", ParentCategory = null, ChildrenCategory = null });
 
+                        ViewData["AllCategories"] = new SelectList(CreateCategoryList(rootCategories, 0), "Id", "Name");
+
+                        return View(category);
                     }
 
-                }
+                }    
 
                 try
                 {
                     _context.ChangeTracker.Clear();
                     _context.Categories.Update(category);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return Redirect("/Categories/Manage");
                 }
-                catch
+                catch(Exception ex)
                 {
                     ModelState.AddModelError("", "Không thành công!");
                 }
@@ -278,7 +286,7 @@ namespace MyBlog.Controllers
             return View(category);
         }
 
-        async Task<bool> IsValidParentCategory(Category category, int id)
+        async Task<bool> IsValidParentCategory(Category category, Guid id)
         {
             if (category.Id == id) return false;
             else if (category.ChildrenCategory == null || category.ChildrenCategory.Count == 0) return true;
@@ -292,14 +300,15 @@ namespace MyBlog.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Manage, Admin")]
+        [Route("Delete")]
+        [Authorize(Roles = "Manage,Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
             var category = await _context.Categories
                 .Include(c => c.ChildrenCategory)
                 .Include(c => c.ParentCategory)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == Guid.Parse(id));
             if (category == null) return NotFound();
 
             foreach (var child in category.ChildrenCategory)
@@ -307,10 +316,11 @@ namespace MyBlog.Controllers
                 child.ParentCategory = category.ParentCategory;
             }
 
-            _context.Categories.Remove(category);
+            category.Deleted = true;
+            _context.Entry(category).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Manage");
         }
 
         public async Task GetChildrenCategory(Category ParentCategoies)
@@ -323,7 +333,7 @@ namespace MyBlog.Controllers
                     var newChildCategory = await _context.Categories
                         .Include(c => c.ParentCategory)
                         .Include(c => c.ChildrenCategory)
-                        .FirstOrDefaultAsync(c => c.Id == category.Id);
+                        .FirstOrDefaultAsync(c => c.Id == category.Id && c.Deleted == false);
 
                     await GetChildrenCategory(newChildCategory);
                     newChildrenCategory.Add(newChildCategory);
@@ -341,7 +351,7 @@ namespace MyBlog.Controllers
                 {
                     foreach (var category in AllCategories)
                     {
-                        if (category.Id == child.Id)
+                        if (category.Id == child.Id && category.Deleted == false)
                         {
                             newChildrenCategories.Add(category);
                             AllCategories.Remove(category);
@@ -354,19 +364,46 @@ namespace MyBlog.Controllers
         }
 
         [HttpGet("/the-loai/{slug}")]
-        public async Task<IActionResult> Details(string slug)
+        public async Task<IActionResult> Details(
+            string slug,
+            [FromQuery(Name = "page")] int page = 1,
+            [FromQuery(Name = "pageSize")] int pageSize = 10,
+            [FromQuery(Name = "type")] string type = "bai-viet"
+        )
         {
+            int countItems = 0;
             var category = await _context.Categories
                 .Include(c => c.ChildrenCategory)
                 .FirstOrDefaultAsync(c => c.Slug == slug);
             await GetChildrenCategory(category);
             var childCateIds = GetCategoriesId(category);
-            var posts = await _context.Posts
-                .Include(p => p.Thumbnail)
-                .Include(p => p.Author)
-                .Where(p => p.CategoryId != null && childCateIds.Contains((int)p.CategoryId))
-                .ToListAsync();
-            category.Posts = posts;
+            if (type == "bai-viet")
+            {
+                var posts = await _context.Posts
+                    .Include(p => p.Thumbnail)
+                    .Include(p => p.Author)
+                    .Where(p => p.CategoryId != null && childCateIds.Contains((Guid)p.CategoryId) && p.Deleted == false && p.Status == 1)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                category.Posts = posts;
+                category.Documents = null;
+                countItems = _context.Posts.Count(p => p.CategoryId != null && childCateIds.Contains((Guid)p.CategoryId) && p.Deleted == false);
+            }
+            else if (type == "tai-lieu")
+            {
+                var documents = await _context.Documents
+                    .Include(p => p.Author)
+                    .Where(p => p.CategoryId != null && childCateIds.Contains((Guid)p.CategoryId) && p.Deleted == false)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+                category.Documents = documents;
+                category.Posts = null;
+                countItems = _context.Documents.Count(p => p.CategoryId != null && childCateIds.Contains((Guid)p.CategoryId) && p.Deleted == false);
+            }
+            ViewData["maxPage"] = countItems % pageSize == 0 ? countItems / pageSize : countItems / pageSize + 1;
+            ViewData["currentPage"] = page;
             if (category == null) return NotFound();
             return View(category);
         }

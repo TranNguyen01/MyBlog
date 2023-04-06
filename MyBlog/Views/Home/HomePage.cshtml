@@ -1,0 +1,111 @@
+﻿@using MyBlog.Models.ViewModels
+@using System.Text.RegularExpressions;
+@model ViewHome
+@{
+    
+}
+<link rel="stylesheet" href="~/css/home.css" />
+
+<div class="row">
+    <div class="col-8 border-right">
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <div class="border-bottom mb-3 d-flex">
+                    <div class="pb-1 font-weight-light border-bottom-dark">Bài viết nổi bật</div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                @{
+                    foreach (var item in Model.Posts)
+                    {
+                        <div class="border-bottom mt-3">
+                            <div class="d-flex align-items-center align-middle">
+                                <img style="" class="avatar-sm bg-info rounded-circle" src="@(item.Author?.Avatar != null ? item.Author.Avatar.Url: "https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg")">
+                                @{
+                                    var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";
+                                }
+                                <span class="small ml-2 mb-0 text-capitalize">@itemAuthorFullName</span>
+                                <span class="font-weight-bold mx-1">·</span>
+                                <span class="small mb-0 text-muted">@CreateDateString(item.CreatedAt)</span>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-9">
+                                    <div>
+                                        <a href="/Post/@item.Slug" class="text-reset">
+                                            <h2 class="item-title mb-1">@item.Title</h2>
+                                            <div>
+                                                @{
+                                                    string rawContent = Regex.Replace(item.Content, "<.*?>", String.Empty);
+                                                    var time = rawContent.Split(" ").Length % 60 == 0 ? rawContent.Split(" ").Length / 60 : rawContent.Split(" ").Length / 60 + 1;
+                                                    rawContent = rawContent.Substring(0, rawContent.Length > 115 ? 115 : rawContent.Length);
+                                                }
+                                                <p>@(rawContent.Length < 115 ? Html.Raw(rawContent) : @Html.Raw(rawContent + "..."))</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="py-4">
+                                        <a href="/the-loai/@item.Category.Slug" class="badge small font-weight-normal px-2 py-1 badge-pill badge-light">
+                                            @item.Category.Name
+                                        </a>
+                                        <span class="ml-2 small text-muted">@time phút để đọc</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 d-flex justify-content-end align-items-start">
+                                    <img src="@item.Thumbnail.Url" style="max-height: 100px; height: 100px; width: 100px; object-fit: cover; object-position: center" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-4">
+        <div class="pl-4 mb-4">
+            <h6 class="font-weight-bold mb-3">Tài liệu nổi bật</h6>
+            <div class="d-flex flex-column">
+                @foreach (var item in Model.Documents)
+                {
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center align-middle mb-2">
+                            <img style="" class="avatar-xs bg-info rounded-circle" src="https://www.slashfilm.com/img/gallery/avatar-2-release-date-cast-and-more/intro-1632504000.jpg">
+                            @{
+                                var itemAuthorFullName = $"{item.Author.LastName} {item.Author.FirstName}";
+                            }
+                            <span class="text-13px ml-1 mb-0 text-capitalize">@itemAuthorFullName</span>
+                        </div>
+                        <div>
+                            <a href="/Document/@item.Id" class="text-reset">
+                                <h6 class="font-weight-bold upper-first mb-0">@item.Name</h6>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="pl-3">
+            <h6 class="font-weight-bold mb-3">Các thể loại nổi bật</h6>
+            <div class="d-flex flex-row flex-wrap">
+                @foreach(var item in Model.Categories.Take(6).ToList())
+                {                    
+                    <a href="/the-loai/@item.Slug" class="text-0875 badge font-weight-normal px-3 py-2 mb-2 mr-3 badge-pill bg-light-gray text-dark">
+                        @item.Name
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    string CreateDateString(DateTime dateTime)
+    {
+        var days = new string[] { "Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy" };
+        return $"{dateTime.ToString("dd/MM/yyyy")}";
+    }
+
+}

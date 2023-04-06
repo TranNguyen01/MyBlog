@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyBlog.Models;
+using MyBlog.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MyBlog.Controllers
@@ -21,35 +26,48 @@ namespace MyBlog.Controllers
             _UserManager = userManager;
         }
 
-        public async Task<IActionResult> Create([Bind("UserId,PostId")] Like like)
+        [HttpGet]
+        [Route("/Like")]
+        public async Task<BaseResponse<List<Like>>> GetLikesByPostId([FromQuery] string postId)
         {
-            if (!ModelState.IsValid) return Json(new { success = false, message = "Không thành công" });
-            _Context.Likes.Add(like);
-            try
+            var likes = await _Context.Likes.Where(l => l.PostId == Guid.Parse(postId)).ToListAsync();
+            return new BaseResponse<List<Like>>
             {
-                await _Context.SaveChangesAsync();
-                return Json(new { success = true, message = "Thêm thành công!", like = like });
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return Json(new { success = false, message = "Không thành công!" });
-            }
+                Code = 0,
+                message = "",
+                Data = likes
+            };
         }
 
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Like([Bind("UserId, PostId")] Like like)
         {
-            var like = await _Context.Likes.FirstOrDefaultAsync(l => l.Id == id);
-            if (like == null) return Json(new { succes = true, message = "Không tìm thấy!" });
-            _Context.Likes.Remove(like);
+            if (!ModelState.IsValid) return Json(new { success = false, message = "Không thành công" });
 
+            var existLike = await _Context.Likes.FirstOrDefaultAsync(l => l.PostId == like.PostId && l.UserId == like.UserId);
             try
             {
+                if (existLike != null)
+                {
+                    _Context.Likes.Remove(existLike);
+                    Post post = await _Context.Posts.FirstOrDefaultAsync(p => p.Id == existLike.PostId);
+                    if (post != null && post.LikesCount > 1) post.LikesCount--;
+                }
+                else
+                {
+                    Post post = await _Context.Posts.FirstOrDefaultAsync(p => p.Id == like.PostId);
+                    if (post != null) post.LikesCount++;
+                    else return Json(new BaseResponse<Like> { Code = 0, message = "Error", Data = null });
+                    _Context.Likes.Add(like);
+                }
                 await _Context.SaveChangesAsync();
-                return Json(new { success = true, message = "Thêm thành công!" });
+                return Json(new { success = true, message = "Thành công!", like = like });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                return Json(new { success = true, message = "Không thành công!" });
+                _Logger.LogError(ex.Message);
+                return Json(new { success = false, message = "Không thành công!" });
             }
         }
     }

@@ -4,14 +4,14 @@ namespace MyBlog.Models.ViewModels
 {
     public class ViewPost
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required(ErrorMessage = "Tên bài viết là bắt buộc!")]
         [Display(Name = "Tên bài viết")]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Tên phải có độ dài trong khoảng từ {1} đến {2} kí tự!")]
         public string Title { get; set; }
 
-        [Required(ErrorMessage = "Tóm tắt là bắt buộc!")]
+        //[Required(ErrorMessage = "Tóm tắt là bắt buộc!")]
         [Display(Name = "Tóm tắt")]
         public string Description { get; set; }
 
@@ -25,7 +25,7 @@ namespace MyBlog.Models.ViewModels
 
         [Required(ErrorMessage = "Thể loại là bắt buộc!")]
         [Display(Name = "Thể loại")]
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
 
         [Display(Name = "Thể loại")]
         public Category Category { get; set; }
